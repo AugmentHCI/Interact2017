@@ -1,0 +1,45 @@
+body {
+    overflow: hidden;
+    background: black;
+}
+
+.rectangle {
+    fill: grey;
+    fill-opacity: 0.00001;
+}
+
+.rectangleText {
+    fill: white;
+}
+
+.minutesArc {
+    fill: #1D3549;
+}
+
+.minutesAux {
+    fill: #2B506E;
+}
+
+.hoursArc {
+    fill: #2B506E;
+}
+
+.hoursAux {
+    fill: #4682B4;
+}
+
+.daysArc {
+    fill: #4682B4;
+}
+
+.daysAux {
+    fill: #6a9bc3;
+}
+
+.weeksArc {
+    fill: #6a9bc3;
+}
+
+.weeksAux {
+    fill: white;
+}

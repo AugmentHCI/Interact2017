@@ -1,0 +1,44 @@
+{
+  "personal": {
+    "name": "Jane Doe",
+    "age": 26,
+    "gender": "female",
+    "weight": "65 kg",
+    "image": "http://drupalbase.eku. edu/sites/default/files/people_images/Female_User_Icon_clip_art_hight.png"
+  },
+  "episodes": [
+    {
+      "name": "headache",
+      "medications": [
+        "paracetamol"
+      ]
+    },
+    {
+      "name": "fibromylgia",
+      "medications": [
+        "cymbalte",
+        "ibuprofene"
+      ]
+    },
+    {
+      "name": "hay fever",
+      "medications": [
+        "flixonse"
+      ]
+    }
+  ],
+  "allergies": [
+    {
+      "name": "ampicillin"
+    },
+    {
+      "name": "atracurium"
+    },
+    {
+      "name": "succinylcholine"
+    },
+    {
+      "name": "test"
+    }
+  ]
+}

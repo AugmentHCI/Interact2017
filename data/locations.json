@@ -1,0 +1,22 @@
+[
+  {
+    "id": 0,
+    "name": "paracetamol",
+    "halfLife": 72000,
+    "center": [
+      750,
+      300
+    ],
+    "radius": 50
+  },
+  {
+    "id": 1,
+    "name": "ibuprofene",
+    "halfLife": 1200,
+    "center": [
+      500,
+      200
+    ],
+    "radius": 60
+  }
+]
