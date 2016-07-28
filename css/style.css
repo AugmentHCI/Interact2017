@@ -4,7 +4,7 @@ body {
 }
 
 .rectangle {
-    fill: grey;
+    fill: #9467bd;
     fill-opacity: 0.00001;
 }
 
@@ -42,4 +42,10 @@ body {
 
 .weeksAux {
     fill: white;
+}
+
+.warning {
+    fill: none;
+    stroke: red;
+    stroke-width: 5;
 }

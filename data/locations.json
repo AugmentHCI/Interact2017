@@ -4,10 +4,19 @@
     "name": "paracetamol",
     "halfLife": 72000,
     "center": [
-      750,
-      300
+      690,
+      250
     ],
-    "radius": 50
+    "radius": 20,
+    "interactions": [
+      {
+        "name": "ibuprofene",
+        "type": "severe"
+      }
+    ],
+    "warnings": [
+      "breastfeeding", "alcohol"
+    ]
   },
   {
     "id": 1,
@@ -15,8 +24,37 @@
     "halfLife": 1200,
     "center": [
       500,
-      200
+      400
     ],
-    "radius": 60
+    "radius": 30,
+    "interactions": [
+      {
+        "name": "paracetamol",
+        "type": "severe"
+      }
+    ],
+    "warnings": [
+      "breastfeeding"
+    ]
+  },
+  {
+    "id": 2,
+    "name": "flixonase",
+    "halfLife": 1200,
+    "center": [
+      150,
+      170
+    ],
+    "radius": 60,
+    "interactions": [
+      {
+        "name": "ibuprofene",
+        "type": "warning"
+      }
+    ],
+    "warnings": [
+      "breastfeeding"
+
+    ]
   }
 ]
