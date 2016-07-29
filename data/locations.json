@@ -4,10 +4,13 @@
     "name": "paracetamol",
     "halfLife": 72000,
     "center": [
-      690,
-      250
+      700,
+      800
     ],
     "radius": 20,
+    "episode": [
+      "headache"
+    ],
     "interactions": [
       {
         "name": "ibuprofene",
@@ -23,10 +26,13 @@
     "name": "ibuprofene",
     "halfLife": 1200,
     "center": [
-      500,
+      800,
       400
     ],
-    "radius": 30,
+    "radius": 100,
+    "episode": [
+
+    ],
     "interactions": [
       {
         "name": "paracetamol",
@@ -42,10 +48,13 @@
     "name": "flixonase",
     "halfLife": 1200,
     "center": [
-      150,
-      170
+      200,
+      600
     ],
     "radius": 60,
+    "episode": [
+      "fibromylgia"
+    ],
     "interactions": [
       {
         "name": "ibuprofene",
@@ -54,6 +63,26 @@
     ],
     "warnings": [
       "breastfeeding"
+
+    ]
+  }
+,
+  {
+    "id": 3,
+    "name": "cymbalta",
+    "halfLife": 20,
+    "center": [
+      300,
+      300
+    ],
+    "radius": 60,
+    "episode": [
+      "hay fever", "headache"
+    ],
+    "interactions": [
+
+    ],
+    "warnings": [
 
     ]
   }

@@ -45,7 +45,9 @@ body {
 }
 
 .warning {
-    fill: none;
-    stroke: red;
-    stroke-width: 5;
+    stroke: grey;
+    stroke-dasharray: 5;
+
 }
+
+
