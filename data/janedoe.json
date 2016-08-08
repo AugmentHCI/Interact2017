@@ -16,29 +16,41 @@
     {
       "name": "fibromylgia",
       "medications": [
-        "cymbalte",
+        "cymbalta",
         "ibuprofene"
       ]
     },
     {
       "name": "hay fever",
       "medications": [
-        "flixonse"
+        "flixonase"
       ]
     }
   ],
   "allergies": [
     {
-      "name": "ampicillin"
+      "name": "ampicillin",
+      "medications": [
+
+      ]
     },
     {
-      "name": "atracurium"
+      "name": "atracurium",
+      "medications": [
+        "cymbalta"
+      ]
     },
     {
-      "name": "succinylcholine"
+      "name": "succinylcholine",
+      "medications": [
+
+      ]
     },
     {
-      "name": "test"
+      "name": "test",
+      "medications": [
+
+      ]
     }
   ]
 }

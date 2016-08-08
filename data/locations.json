@@ -8,9 +8,6 @@
       800
     ],
     "radius": 20,
-    "episode": [
-      "headache"
-    ],
     "interactions": [
       {
         "name": "ibuprofene",
@@ -18,7 +15,8 @@
       }
     ],
     "warnings": [
-      "breastfeeding", "alcohol"
+      "breastfeeding",
+      "alcohol"
     ]
   },
   {
@@ -26,13 +24,10 @@
     "name": "ibuprofene",
     "halfLife": 1200,
     "center": [
-      800,
-      400
+      1000,
+      350
     ],
     "radius": 100,
-    "episode": [
-
-    ],
     "interactions": [
       {
         "name": "paracetamol",
@@ -49,12 +44,9 @@
     "halfLife": 1200,
     "center": [
       200,
-      600
+      800
     ],
     "radius": 60,
-    "episode": [
-      "fibromylgia"
-    ],
     "interactions": [
       {
         "name": "ibuprofene",
@@ -63,10 +55,8 @@
     ],
     "warnings": [
       "breastfeeding"
-
     ]
-  }
-,
+  },
   {
     "id": 3,
     "name": "cymbalta",
@@ -76,14 +66,9 @@
       300
     ],
     "radius": 60,
-    "episode": [
-      "hay fever", "headache"
-    ],
     "interactions": [
-
     ],
     "warnings": [
-
     ]
   }
 ]
