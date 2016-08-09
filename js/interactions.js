@@ -1,6 +1,6 @@
 /*jshint esversion: 6 */
 
-(function () {
+(function (d3) {
     "use strict";
 
     var width = window.innerWidth,
@@ -321,4 +321,4 @@
         }
         return nbCircles;
     }
-}());
+}(d3));
