@@ -1,0 +1,22 @@
+{
+  "name": "chi2017-prototype1",
+  "authors": [
+    "robindecroon <robin.decroon@cs.kuleuven.com>"
+  ],
+  "description": "First digital prototope based on PowerPoint prototype",
+  "main": "index.html",
+  "license": "MIT",
+  "homepage": "robindecroon.wordpress.com",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "d3": "^4.1.1",
+    "underscore": "^1.8.3"
+  }
+}
