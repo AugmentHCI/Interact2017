@@ -1,7 +1,7 @@
 /*jshint esversion: 6 */
 
-(function () {
-    'use strict';
+(function (d3) {
+    "use strict";
 
     var width = window.innerWidth,
         height = window.innerHeight;
@@ -14,23 +14,26 @@
     var t = d3.transition()
         .duration(1000);
 
-    var svg = d3.select('body').append('svg');
-    svg.attr('width', width)
-        .attr('height', height);
+    var svg = d3.select("body").append("svg");
+    svg.attr("width", width)
+        .attr("height", height);
 
-    var backgroundLayer = svg.append('svg');
+    var backgroundLayer = svg.append("svg");
     backgroundLayer
         .attr("class", "backgroundLayer")
-        .attr('width', width)
-        .attr('height', height);
+        .attr("width", width)
+        .attr("height", height);
 
-    var textLayer = svg.append('svg');
+    var textLayer = svg.append("svg");
     textLayer
         .attr("class", "textLayer")
-        .attr('width', width)
-        .attr('height', height);
+        .attr("width", width)
+        .attr("height", height);
 
-    d3.json('data/dosageregimen.json', function (error, data) {
+    d3.json("data/dosageregimen.json", function (error, data) {
+        if (error) {
+            console.log(error);
+        }
 
         var totalWeight = _.reduce(data, function(memo, el){ return memo + el.weight; }, 0);
         var columnWidth = width / totalWeight;
@@ -64,8 +67,8 @@
             .style("fill-opacity", 1);
 
         headerGroup.append("svg:image")
-            .attr('width', imageSize)
-            .attr('height', imageSize)
+            .attr("width", imageSize)
+            .attr("height", imageSize)
             .attr("x", -imageSize/2)
             .attr("y", imageSize/2)
             .attr("xlink:href",d => {
@@ -94,7 +97,10 @@
         setInterval(update, 1000);
         update();
         function update() {
-            d3.json('data/locations.json', function (error, locations) {
+            d3.json("data/locations.json", function (error, locations) {
+                if (error) {
+                    console.log(error);
+                }
 
                 var bannerHeight = height/(locations.length+1);
 
@@ -125,7 +131,7 @@
                     .attr("height", d => {
                         return d3.max([bannerHeight, d.radius]);
                     })
-                    .style('fill', (d,i) => i % 2 === 0 ? "darkgrey" : "black");
+                    .style("fill", (d,i) => i % 2 === 0 ? "darkgrey" : "black");
 
 
                 /////////////////////////////////////////
@@ -150,9 +156,9 @@
                     .attr("y", d => d.center[1])
                     .attr("width", rectangleWidth)
                     .attr("height", rectangleHeight)
-                    .style('fill', "white");
+                    .style("fill", "white");
             });
 
         }
     });
-}());
+}(d3));

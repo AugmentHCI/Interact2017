@@ -1,7 +1,7 @@
 /*jshint esversion: 6 */
 
 (function () {
-    'use strict';
+    "use strict";
 
     var width = window.innerWidth,
         height = window.innerHeight;
@@ -16,23 +16,23 @@
     var t = d3.transition()
         .duration(1000);
 
-    var svg = d3.select('body').append('svg');
-    svg.attr('width', width)
-        .attr('height', height);
+    var svg = d3.select("body").append("svg");
+    svg.attr("width", width)
+        .attr("height", height);
 
-    var rectangleLayer = svg.append('svg');
+    var rectangleLayer = svg.append("svg");
     rectangleLayer
         .attr("class", "rectangleLayer")
-        .attr('width', width)
-        .attr('height', height);
+        .attr("width", width)
+        .attr("height", height);
 
-    var medicationLayer = svg.append('svg');
+    var medicationLayer = svg.append("svg");
     medicationLayer
         .attr("class", "medicationLayer")
-        .attr('width', width)
-        .attr('height', height);
+        .attr("width", width)
+        .attr("height", height);
 
-    d3.json('data/janedoe.json', function (error, data) {
+    d3.json("data/janedoe.json", function (error, data) {
         var nbEpisodes = data.episodes.length;
         var episodeStartX = (width - rectangleWidth * nbEpisodes - (nbEpisodes - 1) * padding) / 2;
         drawRectangle(data.episodes, "Episodes", episodeStartX, topMargin, true);
@@ -50,7 +50,10 @@
         setInterval(update, 1000);
         update();
         function update() {
-            d3.json('data/locations.json', function (error, locations) {
+            d3.json("data/locations.json", function (error, locations) {
+                if (error) {
+                    console.log(error);
+                }
                 //////////////////////////////////////
                 // Interaction lines /////////////////
                 //////////////////////////////////////
@@ -104,7 +107,7 @@
                 //////////////////////////////////////
 
                 // JOIN new data with old elements.
-                var myGroups = medicationLayer.selectAll('g.circleGroup').data(locations, med => med.id);
+                var myGroups = medicationLayer.selectAll("g.circleGroup").data(locations, med => med.id);
 
                 // exit selection
                 myGroups.exit()
@@ -209,14 +212,14 @@
                    .attr("class","warnings");
 
                 warningEnter.append("svg:image")
-                    .attr('width', imageSize)
-                    .attr('height', imageSize)
+                    .attr("width", imageSize)
+                    .attr("height", imageSize)
                     .attr("xlink:href",d => "images/warning/" + d.warning + ".png")
-                    .attr('x',(d,i) => {
+                    .attr("x",(d,i) => {
                         var nbCircles = numberOfCircles(d.parentData.halfLife);
                         return i*40 -imageSize -0.75 * (d.parentData.radius + nbCircles*radiusWidth + nbCircles*padding);
                     })
-                    .attr('y',(d,i) => {
+                    .attr("y",(d,i) => {
                         var nbCircles = numberOfCircles(d.parentData.halfLife);
                         return -i*20-imageSize -0.75 * (d.parentData.radius + nbCircles*radiusWidth + nbCircles*padding);
                     });
@@ -259,7 +262,7 @@
             .attr("y", -5)
             .attr("class", "rectangleText");
 
-        var rectangle = rectangleGroup.selectAll('.rectangle')
+        var rectangle = rectangleGroup.selectAll(".rectangle")
             .data(data);
 
         rectangle.exit()
