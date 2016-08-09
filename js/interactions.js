@@ -282,7 +282,8 @@
           .transition(t)
             .style("fill-opacity", 1);
 
-        singleEpisodeGroup.append("text").text(d => d.name).style("text-anchor", "middle")
+        singleEpisodeGroup.append("text").text(d => d.name)
+            .style("text-anchor", "middle")
             .attr("x", rectangleWidth / 2)
             .attr("y", rectangleHeight / 2)
             .attr("dy", 5)

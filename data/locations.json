@@ -25,7 +25,7 @@
     "halfLife": 1200,
     "center": [
       1000,
-      350
+      500
     ],
     "radius": 100,
     "interactions": [
@@ -44,7 +44,7 @@
     "halfLife": 1200,
     "center": [
       200,
-      800
+      1100
     ],
     "radius": 60,
     "interactions": [
@@ -63,7 +63,7 @@
     "halfLife": 20,
     "center": [
       300,
-      300
+      200
     ],
     "radius": 60,
     "interactions": [

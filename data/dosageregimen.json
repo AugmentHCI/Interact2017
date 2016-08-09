@@ -1,0 +1,46 @@
+[
+  {"key": "title",
+  "value": "medicatie",
+  "weight": 3
+  },
+  {"key": "unit",
+    "value": "Inname/eenheid",
+    "weight": 2
+  },
+  {"key": "morning",
+    "value": "Ochtend",
+    "weight": 1
+  },
+  {"key": "breakfast",
+    "value": "Ontbijt",
+    "weight": 1,
+    "icon": "images/breakfast.png"
+  },
+  {"key": "lunch",
+    "value": "Middagmaal",
+    "weight": 1,
+    "icon": "images/lunch.png"
+  },
+  {"key": "dinner",
+    "value": "Avondeten",
+    "weight": 1,
+    "icon": "images/dinner.png"
+  },
+  {"key": "sleep",
+    "value": "'s nachts",
+    "weight": 1,
+    "icon": "images/sleep.png"
+  },
+  {"key": "other",
+    "value": "Anders",
+    "weight": 1
+  },
+  {"key": "remarks",
+    "value": "Opmerkingen",
+    "weight": 1
+  },
+  {"key": "frequency",
+    "value": "Frequentie",
+    "weight": 1
+  }
+]
