@@ -1,4 +1,5 @@
 /*jshint esversion: 6 */
+
 (function () {
     'use strict';
 
@@ -67,7 +68,7 @@
                 // filter double interactions
                 var interactions = [];
                 tempInteractions.forEach(temp => {
-                    if (interactions.findIndex(elem => elem.from == temp.to && elem.to == temp.from) < 0) {
+                    if (interactions.findIndex(elem => elem.from === temp.to && elem.to === temp.from) < 0) {
                         interactions.push(temp);
                     }
                 });
@@ -91,7 +92,7 @@
                   .enter().append("line")
                     .attr("class", "interaction")
                     .attr("stroke-width", 5)
-                    .attr("stroke", d => d.type == "severe" ? "red" : "orange")
+                    .attr("stroke", d => d.type === "severe" ? "red" : "orange")
                     .attr("x1", d => d.from.center[0])
                     .attr("y1", d => d.from.center[1])
                     .attr("x2", d => d.to.center[0])
@@ -136,8 +137,7 @@
 
                 myGroups.selectAll(".minutesAux").data(d => {
                         var all = _.map(d3.range(0,60), num => {return {n: num, parentData: d};});
-                        var result =  _.filter(all, e => e.n < d.halfLife);
-                        return result;
+                        return _.filter(all, e => e.n < d.halfLife);
                     })
                   .enter().append("path")
                     .attr("class", "minutesAux")
@@ -159,8 +159,7 @@
                     );
                 myGroups.selectAll(".hoursAux").data(d => {
                         var all = _.map(d3.range(0,24), num => {return {n: num, parentData: d};});
-                        var result =  _.filter(all, e => e.n < Math.floor(d.halfLife/60));
-                        return result;
+                        return _.filter(all, e => e.n < Math.floor(d.halfLife/60));
                     })
                   .enter().append("path")
                     .attr("class", "hoursAux")
@@ -177,8 +176,7 @@
                     .attr("d", d => innerArc(d.radius + 2*radiusWidth + 2*padding,0,(Math.PI/3.5)*(Math.floor((d.halfLife/60)/24)))(d));
                 myGroups.selectAll(".daysAux").data(d => {
                     var all = _.map(d3.range(0,7), num => {return {n: num, parentData: d};});
-                    var result =  _.filter(all, e => e.n < Math.floor((d.halfLife/60)/24));
-                    return result;
+                    return _.filter(all, e => e.n < Math.floor((d.halfLife/60)/24));
                     })
                   .enter().append("path")
                     .attr("class", "daysAux")
@@ -195,8 +193,7 @@
                     .attr("d", d => innerArc(d.radius + 3*radiusWidth + 3*padding,0,(Math.PI/25.5)*(Math.floor(((d.halfLife/60)/24)/7)))(d));
                 myGroups.selectAll(".weeksAux").data(d => {
                     var all = _.map(d3.range(0,51), num => {return {n: num, parentData: d};});
-                    var result =  _.filter(all, e => e.n < Math.floor(((d.halfLife/60)/24)/7));
-                    return result;
+                    return _.filter(all, e => e.n < Math.floor(((d.halfLife/60)/24)/7));
                     })
                   .enter().append("path")
                     .attr("class", "weeksAux")
@@ -310,12 +307,15 @@
 
     function numberOfCircles(halfLife) {
         var nbCircles = 1;
-        if (halfLife > 60)
+        if (halfLife > 60){
             nbCircles++;
-        if (halfLife > 60 * 24)
+        }
+        if (halfLife > 60 * 24){
             nbCircles++;
-        if (halfLife > 60 * 24 * 7)
+        }
+        if (halfLife > 60 * 24 * 7){
             nbCircles++;
+        }
         return nbCircles;
     }
 }());

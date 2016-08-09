@@ -1,15 +1,14 @@
 /*jshint esversion: 6 */
+
 (function () {
     'use strict';
 
     var width = window.innerWidth,
         height = window.innerHeight;
 
-    var padding = 5,
-        topMargin = 20,
+    var topMargin = 20,
         rectangleWidth = 130,
         rectangleHeight = 40,
-        radiusWidth = 20,
         imageSize = 30;
 
     var t = d3.transition()
@@ -34,7 +33,7 @@
     d3.json('data/dosageregimen.json', function (error, data) {
 
         var totalWeight = _.reduce(data, function(memo, el){ return memo + el.weight; }, 0);
-        var columnWidth = width/totalWeight;
+        var columnWidth = width / totalWeight;
 
         var tempIndex = 0;
         for(var i = 0; i < data.length; i++) {
@@ -72,9 +71,7 @@
             .attr("xlink:href",d => {
                 if (d.icon !== undefined) {
                     return "images/periods/" + d.key + ".png";
-                } else {
-                    // no image available.
-                }
+                } // no image available.
             });
 
         var auxLines = textLayer.selectAll("line.auxLine").data(data, d => d.name);
@@ -126,7 +123,7 @@
                     .attr("y", d => d.center[1] - bannerHeight/2)
                     .attr("width", width)
                     .attr("height", d => {
-                        return d3.max([bannerHeight, d.radius])
+                        return d3.max([bannerHeight, d.radius]);
                     })
                     .style('fill', (d,i) => i % 2 === 0 ? "darkgrey" : "black");
 

@@ -63,7 +63,7 @@
     "halfLife": 20,
     "center": [
       300,
-      200
+      250
     ],
     "radius": 60,
     "interactions": [
