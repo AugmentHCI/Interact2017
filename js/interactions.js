@@ -44,7 +44,7 @@
 
         var personalStartX = 2 * padding;
         var personalStartY = allergyStartY;
-        var personalData = [{name: data.personal.name, medications: ["cymbalta"]}, {name: data.personal.age, medications: []}, {name: data.personal.gender, medications: []}, {name: data.personal.weight, medications: []}];
+        var personalData = [{name: data.personal.name, medications: []}, {name: data.personal.age, medications: []}, {name: data.personal.gender, medications: []}, {name: data.personal.weight, medications: []}];
         drawRectangle(personalData, "Personal", personalStartX, personalStartY, false);
 
         setInterval(update, 1000);
@@ -282,14 +282,15 @@
           .transition(t)
             .style("fill-opacity", 1);
 
-        singleEpisodeGroup.append("text").text(d => d.name)
+        singleEpisodeGroup.append("text")
             .style("text-anchor", "middle")
             .attr("x", rectangleWidth / 2)
             .attr("y", rectangleHeight / 2)
             .attr("dy", 5)
-            .attr("class", "rectangleText");
+            .attr("class", "rectangleText")
+            .text(d => d.name);
 
-        singleEpisodeGroup.selectAll("line").data((d, i) => _.map(d.medications, elem => {return {medication: elem, parentLocation: {x: startX, y: startY, index: i, top: top}};}))
+        singleEpisodeGroup.selectAll("line").data((d, i) => _.map(d.medications, elem => {return {medication: elem.name, parentLocation: {x: startX, y: startY, index: i, top: top}};}))
               .enter().append("line")
                 .attr("class", d => d.medication + "-lines")
                 .attr("stroke-width", 5)

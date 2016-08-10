@@ -1,6 +1,6 @@
 /*jshint esversion: 6 */
 
-(function (d3) {
+(function (d3,queue) {
     "use strict";
 
     var width = window.innerWidth,
@@ -30,21 +30,26 @@
         .attr("width", width)
         .attr("height", height);
 
-    d3.json("data/dosageregimen.json", function (error, data) {
+    queue
+        .defer(d3.json, "data/dosageregimen.json")
+        .defer(d3.json, "data/janedoe.json") // geojson points
+        .await(draw);
+
+    function draw(error, dosageregimen, healthFile) {    // d3.json("data/dosageregimen.json", function (error, data) {
         if (error) {
             console.log(error);
         }
 
-        var totalWeight = _.reduce(data, function(memo, el){ return memo + el.weight; }, 0);
+        var totalWeight = _.reduce(dosageregimen, function(memo, el){ return memo + el.weight; }, 0);
         var columnWidth = width / totalWeight;
 
         var tempIndex = 0;
-        for(var i = 0; i < data.length; i++) {
-            data[i].startIndex = tempIndex;
-            tempIndex += data[i].weight;
+        for(var i = 0; i < dosageregimen.length; i++) {
+            dosageregimen[i].startIndex = tempIndex;
+            tempIndex += dosageregimen[i].weight;
         }
 
-        var headers = textLayer.selectAll("text.headers").data(data, d => d.name);
+        var headers = textLayer.selectAll("text.headers").data(dosageregimen, d => d.name);
 
         headers.exit()
             .attr("class", "exit")
@@ -77,7 +82,7 @@
                 } // no image available.
             });
 
-        var auxLines = textLayer.selectAll("line.auxLine").data(data, d => d.name);
+        var auxLines = textLayer.selectAll("line.auxLine").data(dosageregimen, d => d.name);
 
         auxLines.exit()
             .attr("class", "exit")
@@ -104,9 +109,21 @@
 
                 var bannerHeight = height/(locations.length+1);
 
-                // order medication boxes from top to bottom
+                /////////////////////////////////////////
+                // Sort and integrate dosage regimen   //
+                /////////////////////////////////////////
                 var topToBottomLocations = _.sortBy(locations, l => l.center[1]);
-
+                for(var i = 0; i < topToBottomLocations.length; i++) {
+                    var loc = topToBottomLocations[i];
+                    loc.info = [];
+                    healthFile.episodes.forEach(episode => {
+                        episode.medications.forEach(med => {
+                            if (loc.name === med.name) {
+                                loc.info.push(med);
+                            }
+                        });
+                    });
+                }
 
                 /////////////////////////////////////////
                 // grey banners to differentiate rows  //
@@ -157,8 +174,66 @@
                     .attr("width", rectangleWidth)
                     .attr("height", rectangleHeight)
                     .style("fill", "white");
-            });
 
+
+                /////////////////////////////////////////
+                // add the actual dosage regimen text  //
+                /////////////////////////////////////////
+                var textGroups = textLayer.selectAll("g.textGroup").data(topToBottomLocations, loc => loc.name);
+
+                textGroups.exit()
+                    .attr("class", "exit")
+                  .transition(t)
+                    .style("fill-opacity", 1e-6)
+                    .remove();
+
+                textGroups
+                  .transition(t)
+                    .attr("transform", d => "translate(0," + d.center[1] + ")");
+
+                var textGroup = textGroups.enter()
+                    .append("g")
+                    .attr("class", "textGroup")
+                    .attr("transform", d => "translate(0," + d.center[1] + ")");
+
+                dosageregimen.forEach(dr => {
+                    var drx = dr.startIndex * columnWidth + (dr.weight *  columnWidth)/2;
+                    textGroup.append("text")
+                        .each(function (d) {
+                            var arr = d.info;
+                            for (i = 0; i < arr.length; i++) {
+                                d3.select(this).append("tspan")
+                                    .text(arr[i][dr.key])
+                                    .attr("dy", i ? "1.2em" : 0)
+                                    .attr("x", drx)
+                                    .style("text-anchor", "middle")
+                                    .style("fill", "white")
+                                    .attr("class", "tspan" + i);
+                            }
+                        });
+
+                    textGroup.append("svg:image")
+                        .attr("width", imageSize)
+                        .attr("height", imageSize)
+                        .attr("x",drx)
+                        .attr("y", -2*imageSize)
+                        .attr("xlink:href",d => {
+                            if (dr.showIcon !== undefined && d.icon !== undefined) {
+                                var totalPills = _.reduce(d.info, function(memo, el){
+                                    if (el[dr.key] !== undefined) {
+                                        return memo + el[dr.key];
+                                    } else {
+                                        return memo;
+                                    }
+                                }, 0);
+                                if (totalPills > 0) {
+                                    return "images/pills/" + d.icon + ".png";
+                                }
+                            } // no image available.
+                        });
+                });
+            });
         }
-    });
-}(d3));
+    }
+
+}(d3, d3.queue()));
