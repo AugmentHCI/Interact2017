@@ -64,3 +64,13 @@ body {
     text-anchor: middle;
     fill: white;
 }
+
+.aux-line {
+    stroke-width: 2;
+    stroke: grey;
+}
+
+.sub-line {
+    stroke-width: 1;
+    stroke: darkgrey;
+}

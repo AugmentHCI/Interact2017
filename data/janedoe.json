@@ -33,9 +33,10 @@
 
         },
         {
-          "name": "flixonase",
+          "name": "ibuprofene",
           "unit": "Innemen/tablet",
-          "sleep": 3,
+          "dinner": 1,
+          "sleep": 1,
           "other": "1 capsule per dag",
           "frequency": "dagelijks van 19/06/2016 tot 31/06/2016"
         }

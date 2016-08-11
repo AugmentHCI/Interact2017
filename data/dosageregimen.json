@@ -16,19 +16,22 @@
     "value": "Ontbijt",
     "weight": 1,
     "icon": "images/breakfast.png",
-    "showIcon": true
+    "showIcon": true,
+    "subdivision": 3
   },
   {"key": "lunch",
     "value": "Middagmaal",
     "weight": 1,
     "icon": "images/lunch.png",
-    "showIcon": true
+    "showIcon": true,
+    "subdivision": 3
   },
   {"key": "dinner",
     "value": "Avondeten",
     "weight": 1,
     "icon": "images/dinner.png",
-    "showIcon": true
+    "showIcon": true,
+    "subdivision": 3
   },
   {"key": "sleep",
     "value": "'s nachts",

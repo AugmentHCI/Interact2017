@@ -89,12 +89,33 @@
 
         auxLines.enter().append("line")
             .attr("class", "aux-line")
-            .attr("stroke-width", 2)
-            .attr("stroke", "grey")
             .attr("x1", d => d.startIndex * columnWidth - 1)
             .attr("y1", 0)
             .attr("x2", d => d.startIndex * columnWidth - 1)
             .attr("y2", height);
+
+        var subLines = textLayer.selectAll("line.sub-line").data(dosageregimen, d => d.name);
+
+        subLines.exit()
+            .attr("class", "exit")
+            .transition(t)
+            .style("fill-opacity", 1e-6)
+            .remove();
+
+        subLines.enter().each(function(d) {
+            if(d.subdivision !== undefined) {
+                var nbLines = d.subdivision;
+                console.log(d.subdivision);
+                for (var i = 1; i < d.subdivision; i++) {
+                    d3.select(this).append("line")
+                        .attr("class", "sub-line")
+                        .attr("x1", d.startIndex * columnWidth - 1 + i*columnWidth/nbLines)
+                        .attr("y1", (imageSize+padding) *2)
+                        .attr("x2", d.startIndex * columnWidth - 1 + i*columnWidth/nbLines)
+                        .attr("y2", height);
+                }
+            }
+        });
 
         setInterval(update, 1000);
         update();
@@ -199,6 +220,7 @@
                             for (i = 0; i < d.info.length; i++) {
                                 d3.select(this).append("tspan")
                                     .text(d.info[i][dr.key])
+                                    .attr("y", rectangleHeight/2)
                                     .attr("dy", i ? i*imageSize : 0)
                                     .attr("x", drx)
                                     .attr("class", "dosage-text");
@@ -222,7 +244,7 @@
                                     .attr("height", imageSize)
                                     .attr("id", i)
                                     .attr("x", (startX + i * (imageSize + padding) ))
-                                    .attr("y",  -2*imageSize)
+                                    .attr("y",  -2*imageSize + rectangleHeight/2)
                                     .attr("xlink:href",  d => {
                                         if (dr.showIcon !== undefined && d.icon !== undefined) {
                                             return "images/pills/" + d.icon + ".png";
