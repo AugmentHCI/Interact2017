@@ -6,7 +6,8 @@
     var width = window.innerWidth,
         height = window.innerHeight;
 
-    var topMargin = 20,
+    var padding = 5,
+        topMargin = 20,
         rectangleWidth = 130,
         rectangleHeight = 40,
         imageSize = 30;
@@ -20,22 +21,22 @@
 
     var backgroundLayer = svg.append("svg");
     backgroundLayer
-        .attr("class", "backgroundLayer")
+        .attr("class", "background-layer")
         .attr("width", width)
         .attr("height", height);
 
     var textLayer = svg.append("svg");
     textLayer
-        .attr("class", "textLayer")
+        .attr("class", "text-layer")
         .attr("width", width)
         .attr("height", height);
 
     queue
         .defer(d3.json, "data/dosageregimen.json")
-        .defer(d3.json, "data/janedoe.json") // geojson points
+        .defer(d3.json, "data/janedoe.json")
         .await(draw);
 
-    function draw(error, dosageregimen, healthFile) {    // d3.json("data/dosageregimen.json", function (error, data) {
+    function draw(error, dosageregimen, healthFile) {
         if (error) {
             console.log(error);
         }
@@ -49,7 +50,7 @@
             tempIndex += dosageregimen[i].weight;
         }
 
-        var headers = textLayer.selectAll("text.headers").data(dosageregimen, d => d.name);
+        var headers = textLayer.selectAll("text.header").data(dosageregimen, d => d.name);
 
         headers.exit()
             .attr("class", "exit")
@@ -58,18 +59,14 @@
             .remove();
 
         var headerGroup = headers.enter().append("g")
-            .attr("class", "headerGroup")
+            .attr("class", "header-group")
             .attr("transform", d =>
                 "translate(" + (d.startIndex * columnWidth + (d.weight *  columnWidth)/2) + "," + topMargin + ")");
 
         headerGroup.append("text")
-            .attr("class", "headers")
+            .attr("class", "header")
             .attr("dy", ".35em")
-            .style("fill-opacity", 1e-6)
-            .style("text-anchor", "middle")
-            .text(d => d.value)
-          .transition(t)
-            .style("fill-opacity", 1);
+            .text(d => d.value);
 
         headerGroup.append("svg:image")
             .attr("width", imageSize)
@@ -82,7 +79,7 @@
                 } // no image available.
             });
 
-        var auxLines = textLayer.selectAll("line.auxLine").data(dosageregimen, d => d.name);
+        var auxLines = textLayer.selectAll("line.aux-line").data(dosageregimen, d => d.name);
 
         auxLines.exit()
             .attr("class", "exit")
@@ -91,7 +88,7 @@
             .remove();
 
         auxLines.enter().append("line")
-            .attr("class", "auxLine")
+            .attr("class", "aux-line")
             .attr("stroke-width", 2)
             .attr("stroke", "grey")
             .attr("x1", d => d.startIndex * columnWidth - 1)
@@ -106,8 +103,6 @@
                 if (error) {
                     console.log(error);
                 }
-
-                var bannerHeight = height/(locations.length+1);
 
                 /////////////////////////////////////////
                 // Sort and integrate dosage regimen   //
@@ -128,7 +123,9 @@
                 /////////////////////////////////////////
                 // grey banners to differentiate rows  //
                 /////////////////////////////////////////
-                var backgroundBanners = backgroundLayer.selectAll("rect.backgroundBanners").data(topToBottomLocations, l => l.id);
+                var bannerHeight = height/(locations.length+1);
+
+                var backgroundBanners = backgroundLayer.selectAll("rect.background-banner").data(topToBottomLocations, l => l.id);
 
                 backgroundBanners.exit()
                     .attr("class", "exit")
@@ -138,12 +135,12 @@
 
                 backgroundBanners
                   .transition(t)
-                    .attr("y", d => d.center[1] - bannerHeight/2);
+                    .attr("y", d => d.center[1] - bannerHeight/2 + rectangleHeight/2);
 
                 backgroundBanners.enter().append("rect")
-                    .attr("class", "backgroundBanners")
+                    .attr("class", "background-banner")
                     .attr("x", 0)
-                    .attr("y", d => d.center[1] - bannerHeight/2)
+                    .attr("y", d => d.center[1] - bannerHeight/2 + rectangleHeight/2)
                     .attr("width", width)
                     .attr("height", d => {
                         return d3.max([bannerHeight, d.radius]);
@@ -154,7 +151,7 @@
                 /////////////////////////////////////////
                 // aux box to see location medication  //
                 /////////////////////////////////////////
-                var medBoxes = backgroundLayer.selectAll("rect.medBoxes").data(topToBottomLocations, l => l.id);
+                var medBoxes = backgroundLayer.selectAll("rect.med-box").data(topToBottomLocations, l => l.id);
 
                 medBoxes.exit()
                     .attr("class", "exit")
@@ -168,18 +165,16 @@
                     .attr("y", d => d.center[1]);
 
                 medBoxes.enter().append("rect")
-                    .attr("class", "medBoxes")
+                    .attr("class", "med-box")
                     .attr("x", d => d.center[0])
                     .attr("y", d => d.center[1])
                     .attr("width", rectangleWidth)
-                    .attr("height", rectangleHeight)
-                    .style("fill", "white");
-
+                    .attr("height", rectangleHeight);
 
                 /////////////////////////////////////////
                 // add the actual dosage regimen text  //
                 /////////////////////////////////////////
-                var textGroups = textLayer.selectAll("g.textGroup").data(topToBottomLocations, loc => loc.name);
+                var textGroups = textLayer.selectAll("g.text-group").data(topToBottomLocations, loc => loc.name);
 
                 textGroups.exit()
                     .attr("class", "exit")
@@ -191,49 +186,52 @@
                   .transition(t)
                     .attr("transform", d => "translate(0," + d.center[1] + ")");
 
-                var textGroup = textGroups.enter()
-                    .append("g")
-                    .attr("class", "textGroup")
+                var textGroup = textGroups.enter().append("g")
+                    .attr("class", "text-group")
                     .attr("transform", d => "translate(0," + d.center[1] + ")");
 
                 dosageregimen.forEach(dr => {
                     var drx = dr.startIndex * columnWidth + (dr.weight *  columnWidth)/2;
+
+                    // append the actual text
                     textGroup.append("text")
                         .each(function (d) {
-                            var arr = d.info;
-                            for (i = 0; i < arr.length; i++) {
+                            for (i = 0; i < d.info.length; i++) {
                                 d3.select(this).append("tspan")
-                                    .text(arr[i][dr.key])
-                                    .attr("dy", i ? "1.2em" : 0)
+                                    .text(d.info[i][dr.key])
+                                    .attr("dy", i ? i*imageSize : 0)
                                     .attr("x", drx)
-                                    .style("text-anchor", "middle")
-                                    .style("fill", "white")
-                                    .attr("class", "tspan" + i);
+                                    .attr("class", "dosage-text");
                             }
                         });
 
-                    textGroup.append("svg:image")
-                        .attr("width", imageSize)
-                        .attr("height", imageSize)
-                        .attr("x",drx)
-                        .attr("y", -2*imageSize)
-                        .attr("xlink:href",d => {
-                            if (dr.showIcon !== undefined && d.icon !== undefined) {
-                                var totalPills = _.reduce(d.info, function(memo, el){
-                                    if (el[dr.key] !== undefined) {
-                                        return memo + el[dr.key];
-                                    } else {
-                                        return memo;
-                                    }
-                                }, 0);
-                                if (totalPills > 0) {
-                                    return "images/pills/" + d.icon + ".png";
+                    // append the images of pills if available
+                    textGroup
+                        .each(function (d) {
+                            var totalPills = _.reduce(d.info, function (memo, el) {
+                                if (el[dr.key] !== undefined) {
+                                    return memo + el[dr.key];
+                                } else {
+                                    return memo;
                                 }
-                            } // no image available.
+                            }, 0);
+                            var startX = drx - ((totalPills/2)*(imageSize+padding));
+                            for (i = 0; i < totalPills; i++) {
+                                d3.select(this).append("svg:image")
+                                    .attr("width", imageSize)
+                                    .attr("height", imageSize)
+                                    .attr("id", i)
+                                    .attr("x", (startX + i * (imageSize + padding) ))
+                                    .attr("y",  -2*imageSize)
+                                    .attr("xlink:href",  d => {
+                                        if (dr.showIcon !== undefined && d.icon !== undefined) {
+                                            return "images/pills/" + d.icon + ".png";
+                                        }
+                                    });
+                            }
                         });
                 });
             });
         }
     }
-
 }(d3, d3.queue()));

@@ -8,39 +8,39 @@ body {
     fill-opacity: 0.00001;
 }
 
-.rectangleText {
+.rectangle-text {
     fill: white;
 }
 
-.minutesArc {
+.minutes-arc {
     fill: #1D3549;
 }
 
-.minutesAux {
+.minutes-aux {
     fill: #2B506E;
 }
 
-.hoursArc {
+.hours-arc {
     fill: #2B506E;
 }
 
-.hoursAux {
+.hours-aux {
     fill: #4682B4;
 }
 
-.daysArc {
+.days-arc {
     fill: #4682B4;
 }
 
-.daysAux {
+.days-aux {
     fill: #6a9bc3;
 }
 
-.weeksArc {
+.weeks-arc {
     fill: #6a9bc3;
 }
 
-.weeksAux {
+.weeks-aux {
     fill: white;
 }
 
@@ -50,6 +50,17 @@ body {
 
 }
 
-.headers {
+.header {
+    fill: white;
+    text-anchor: middle;
+}
+
+.med-box {
+    fill: white;
+    fill-opacity: 0.25;
+}
+
+.dosage-text {
+    text-anchor: middle;
     fill: white;
 }

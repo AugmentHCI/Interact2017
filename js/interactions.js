@@ -22,13 +22,13 @@
 
     var rectangleLayer = svg.append("svg");
     rectangleLayer
-        .attr("class", "rectangleLayer")
+        .attr("class", "rectangle-layer")
         .attr("width", width)
         .attr("height", height);
 
     var medicationLayer = svg.append("svg");
     medicationLayer
-        .attr("class", "medicationLayer")
+        .attr("class", "medication-layer")
         .attr("width", width)
         .attr("height", height);
 
@@ -107,11 +107,11 @@
                 //////////////////////////////////////
 
                 // JOIN new data with old elements.
-                var myGroups = medicationLayer.selectAll("g.circleGroup").data(locations, med => med.id);
+                var myGroups = medicationLayer.selectAll("g.circle-group").data(locations, med => med.id);
 
                 // exit selection
                 myGroups.exit()
-                    .attr("class", "medicationExit")
+                    .attr("class", "exit")
                   .transition(t)
                     .style("fill-opacity", 1e-6)
                     .remove();
@@ -124,26 +124,26 @@
                 // enter selection
                 var myGroupsEnter = myGroups
                   .enter().append("g")
-                    .attr("class", "circleGroup")
+                    .attr("class", "circle-group")
                     .attr("id", d => d.name)
                     .attr("transform", d => "translate(" + d.center[0] + "," + d.center[1] + ")");
 
                 myGroupsEnter.append("path")
-                    .attr("class", "minutesArc");
+                    .attr("class", "minutes-arc");
 
-                myGroups.select(".minutesArc")
+                myGroups.select(".minutes-arc")
                     .attr("d", d => innerArc(
                         d.radius,
                         0,
                         (Math.PI/30)* d.halfLife)(d)
                     );
 
-                myGroups.selectAll(".minutesAux").data(d => {
+                myGroups.selectAll(".minutes-aux").data(d => {
                         var all = _.map(d3.range(0,60), num => {return {n: num, parentData: d};});
                         return _.filter(all, e => e.n < d.halfLife);
                     })
                   .enter().append("path")
-                    .attr("class", "minutesAux")
+                    .attr("class", "minutes-aux")
                     .attr("d", (d) => {return innerArc(
                         d.parentData.radius,
                         (Math.PI/30)* d.n,
@@ -152,20 +152,20 @@
 
 
                 myGroupsEnter.append("path")
-                    .attr("class", "hoursArc");
+                    .attr("class", "hours-arc");
 
-                myGroups.select(".hoursArc")
+                myGroups.select(".hours-arc")
                     .attr("d", d => innerArc(
                         d.radius + radiusWidth + padding,
                         0,
                         (Math.PI/12)*(Math.floor(d.halfLife/60)))(d)
                     );
-                myGroups.selectAll(".hoursAux").data(d => {
+                myGroups.selectAll(".hours-aux").data(d => {
                         var all = _.map(d3.range(0,24), num => {return {n: num, parentData: d};});
                         return _.filter(all, e => e.n < Math.floor(d.halfLife/60));
                     })
                   .enter().append("path")
-                    .attr("class", "hoursAux")
+                    .attr("class", "hours-aux")
                     .attr("d", (d) => {return innerArc(
                         d.parentData.radius + radiusWidth + padding,
                         (Math.PI/12)* d.n,
@@ -173,16 +173,16 @@
                     });
 
                 myGroupsEnter.append("path")
-                    .attr("class", "daysArc");
+                    .attr("class", "days-arc");
 
-                myGroups.select(".daysArc")
+                myGroups.select(".days-arc")
                     .attr("d", d => innerArc(d.radius + 2*radiusWidth + 2*padding,0,(Math.PI/3.5)*(Math.floor((d.halfLife/60)/24)))(d));
-                myGroups.selectAll(".daysAux").data(d => {
+                myGroups.selectAll(".days-aux").data(d => {
                     var all = _.map(d3.range(0,7), num => {return {n: num, parentData: d};});
                     return _.filter(all, e => e.n < Math.floor((d.halfLife/60)/24));
                     })
                   .enter().append("path")
-                    .attr("class", "daysAux")
+                    .attr("class", "days-aux")
                     .attr("d", (d) => {return innerArc(
                         d.parentData.radius + 2*radiusWidth + 2*padding,
                         (Math.PI/3.5)* d.n,
@@ -190,16 +190,16 @@
                     });
 
                 myGroupsEnter.append("path")
-                    .attr("class", "weeksArc");
+                    .attr("class", "weeks-arc");
 
-                myGroups.select(".weeksArc")
+                myGroups.select(".weeks-arc")
                     .attr("d", d => innerArc(d.radius + 3*radiusWidth + 3*padding,0,(Math.PI/25.5)*(Math.floor(((d.halfLife/60)/24)/7)))(d));
-                myGroups.selectAll(".weeksAux").data(d => {
+                myGroups.selectAll(".weeks-aux").data(d => {
                     var all = _.map(d3.range(0,51), num => {return {n: num, parentData: d};});
                     return _.filter(all, e => e.n < Math.floor(((d.halfLife/60)/24)/7));
                     })
                   .enter().append("path")
-                    .attr("class", "weeksAux")
+                    .attr("class", "weeks-aux")
                     .attr("d", (d) => {return innerArc(
                         d.parentData.radius + 3*radiusWidth + 3*padding,
                         (Math.PI/25.5)* d.n,
@@ -255,12 +255,12 @@
     function drawRectangle(data, titleText, startX, startY, top) {
 
         var rectangleGroup = rectangleLayer.append("g")
-            .attr("class", "rectangleGroup")
+            .attr("class", "rectangle-group")
             .attr("transform", "translate(" + startX + ", " + startY + ")");
 
         rectangleGroup.append("text").text(titleText)
             .attr("y", -5)
-            .attr("class", "rectangleText");
+            .attr("class", "rectangle-text");
 
         var rectangle = rectangleGroup.selectAll(".rectangle")
             .data(data);
@@ -272,7 +272,7 @@
             .remove();
 
         var singleEpisodeGroup = rectangle.enter().append("g")
-            .attr("class", "singleEpisodeGroup")
+            .attr("class", "single-episode-group")
             .attr("transform", (d, i) => "translate(" + i * (rectangleWidth + padding) + ", 0)");
 
         singleEpisodeGroup.append("rect")
@@ -287,7 +287,7 @@
             .attr("x", rectangleWidth / 2)
             .attr("y", rectangleHeight / 2)
             .attr("dy", 5)
-            .attr("class", "rectangleText")
+            .attr("class", "rectangle-text")
             .text(d => d.name);
 
         singleEpisodeGroup.selectAll("line").data((d, i) => _.map(d.medications, elem => {return {medication: elem.name, parentLocation: {x: startX, y: startY, index: i, top: top}};}))

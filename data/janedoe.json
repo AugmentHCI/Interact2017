@@ -13,6 +13,7 @@
         {
           "name": "paracetamol",
           "unit": "Innemen/tablet",
+          "lunch": 2,
           "sleep": 1,
           "other": "1 capsule per dag",
           "frequency": "dagelijks van 19/06/2016 tot 31/06/2016"
@@ -25,6 +26,7 @@
         {
           "name": "cymbalta",
           "unit": "Innemen/tablet",
+          "morning": 3,
           "sleep": 1,
           "other": "1 capsule per dag",
           "frequency": "dagelijks van 19/06/2016 tot 31/06/2016"
@@ -33,7 +35,7 @@
         {
           "name": "flixonase",
           "unit": "Innemen/tablet",
-          "sleep": 1,
+          "sleep": 3,
           "other": "1 capsule per dag",
           "frequency": "dagelijks van 19/06/2016 tot 31/06/2016"
         }
