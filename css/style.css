@@ -50,6 +50,10 @@ body {
 
 }
 
+.background-banner {
+    opacity: 0.3;
+}
+
 .header {
     fill: white;
     text-anchor: middle;
@@ -71,6 +75,16 @@ body {
 }
 
 .sub-line {
+    opacity: 0.5;
     stroke-width: 1;
-    stroke: darkgrey;
+    stroke: grey;
+}
+
+.row-title {
+    fill: white;
+    text-anchor: left;
+}
+
+.darkgrey {
+    fill: darkgrey;
 }

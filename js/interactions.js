@@ -1,7 +1,9 @@
 /*jshint esversion: 6 */
 
-(function (d3) {
+(function (d3, queue) {
     "use strict";
+
+    var tickTime = 200;
 
     var width = window.innerWidth,
         height = window.innerHeight;
@@ -14,7 +16,7 @@
         imageSize = 40;
 
     var t = d3.transition()
-        .duration(1000);
+        .duration(tickTime/2);
 
     var svg = d3.select("body").append("svg");
     svg.attr("width", width)
@@ -32,7 +34,12 @@
         .attr("width", width)
         .attr("height", height);
 
-    d3.json("data/janedoe.json", function (error, data) {
+    queue
+        .defer(d3.json, "data/druginfo.json")
+        .defer(d3.json, "data/janedoe.json")
+        .await(draw);
+
+    function draw(error, druginfo, data) {
         var nbEpisodes = data.episodes.length;
         var episodeStartX = (width - rectangleWidth * nbEpisodes - (nbEpisodes - 1) * padding) / 2;
         drawRectangle(data.episodes, "Episodes", episodeStartX, topMargin, true);
@@ -47,13 +54,46 @@
         var personalData = [{name: data.personal.name, medications: []}, {name: data.personal.age, medications: []}, {name: data.personal.gender, medications: []}, {name: data.personal.weight, medications: []}];
         drawRectangle(personalData, "Personal", personalStartX, personalStartY, false);
 
-        setInterval(update, 1000);
+        var lastMod = 0;
+
+        var previousLocations = [];
+
+        setInterval(update, tickTime);
         update();
         function update() {
-            d3.json("data/locations.json", function (error, locations) {
+            d3.json("data/ram/locations.json?nocache=" + new Date().getTime(), function (error, locations) {
+                if (locations.timestap <= lastMod) {
+                    return;
+                }
+
+                var similar = true;
+                for (var i = 0; i < locations.length && similar && previousLocations.length !== 0; i++) {
+                    var loc = locations[i];
+                    var prev = _.findWhere(previousLocations, {id: loc.id});
+                    if (loc.center[0] > prev.center[0] + 20 || loc.center[0] < prev.center[0] - 20) {
+                        console.log("here1");
+                        similar = false;
+                    }
+                    if (loc.center[1] > prev.center[1] + 20 || loc.center[1] < prev.center[1] - 20) {
+                        console.log("here2");
+                        similar = false;
+                    }
+                }
+                if(similar && previousLocations.length !== 0) {
+                        console.log("now!");
+                        return;
+                }
+                previousLocations = locations;
+
                 if (error) {
                     console.log(error);
                 }
+
+                druginfo.forEach(info => {
+                    _.extend(_.findWhere(locations, {id: info.id}), info);
+                });
+
+
                 //////////////////////////////////////
                 // Interaction lines /////////////////
                 //////////////////////////////////////
@@ -76,10 +116,10 @@
                     }
                 });
 
+
                 var interactionLines = rectangleLayer.selectAll("line.interaction").data(interactions);
 
                 interactionLines.exit()
-                    // .attr("class", "linesExit")
                   .transition(t)
                     .style("fill-opacity", 1e-6)
                     .remove();
@@ -111,12 +151,10 @@
 
                 // exit selection
                 myGroups.exit()
-                    .attr("class", "exit")
                   .transition(t)
                     .style("fill-opacity", 1e-6)
                     .remove();
 
-                // update selection -- this will also contain the newly appended elements
                 myGroups
                   .transition(t)
                     .attr("transform", d => "translate(" + d.center[0] + "," + d.center[1] + ")");
@@ -131,14 +169,14 @@
                 myGroupsEnter.append("path")
                     .attr("class", "minutes-arc");
 
-                myGroups.select(".minutes-arc")
+                myGroupsEnter.select(".minutes-arc")
                     .attr("d", d => innerArc(
                         d.radius,
                         0,
                         (Math.PI/30)* d.halfLife)(d)
                     );
 
-                myGroups.selectAll(".minutes-aux").data(d => {
+                myGroupsEnter.selectAll(".minutes-aux").data(d => {
                         var all = _.map(d3.range(0,60), num => {return {n: num, parentData: d};});
                         return _.filter(all, e => e.n < d.halfLife);
                     })
@@ -154,13 +192,13 @@
                 myGroupsEnter.append("path")
                     .attr("class", "hours-arc");
 
-                myGroups.select(".hours-arc")
+                myGroupsEnter.select(".hours-arc")
                     .attr("d", d => innerArc(
                         d.radius + radiusWidth + padding,
                         0,
                         (Math.PI/12)*(Math.floor(d.halfLife/60)))(d)
                     );
-                myGroups.selectAll(".hours-aux").data(d => {
+                myGroupsEnter.selectAll(".hours-aux").data(d => {
                         var all = _.map(d3.range(0,24), num => {return {n: num, parentData: d};});
                         return _.filter(all, e => e.n < Math.floor(d.halfLife/60));
                     })
@@ -175,9 +213,9 @@
                 myGroupsEnter.append("path")
                     .attr("class", "days-arc");
 
-                myGroups.select(".days-arc")
+                myGroupsEnter.select(".days-arc")
                     .attr("d", d => innerArc(d.radius + 2*radiusWidth + 2*padding,0,(Math.PI/3.5)*(Math.floor((d.halfLife/60)/24)))(d));
-                myGroups.selectAll(".days-aux").data(d => {
+                myGroupsEnter.selectAll(".days-aux").data(d => {
                     var all = _.map(d3.range(0,7), num => {return {n: num, parentData: d};});
                     return _.filter(all, e => e.n < Math.floor((d.halfLife/60)/24));
                     })
@@ -192,9 +230,9 @@
                 myGroupsEnter.append("path")
                     .attr("class", "weeks-arc");
 
-                myGroups.select(".weeks-arc")
+                myGroupsEnter.select(".weeks-arc")
                     .attr("d", d => innerArc(d.radius + 3*radiusWidth + 3*padding,0,(Math.PI/25.5)*(Math.floor(((d.halfLife/60)/24)/7)))(d));
-                myGroups.selectAll(".weeks-aux").data(d => {
+                myGroupsEnter.selectAll(".weeks-aux").data(d => {
                     var all = _.map(d3.range(0,51), num => {return {n: num, parentData: d};});
                     return _.filter(all, e => e.n < Math.floor(((d.halfLife/60)/24)/7));
                     })
@@ -238,15 +276,20 @@
                     .attr("x2", 0)
                     .attr("y2", 0);
 
+                druginfo.forEach(info => {
+                    rectangleLayer.selectAll("." + info.name + "-lines").attr("visibility", "hidden");
+                });
+
                 locations.forEach(l => {
                     rectangleLayer.selectAll("." + l.name + "-lines")
+                        .attr("visibility", "visible")
                       .transition()
                         .attr("x2", d => l.center[0] - d.parentLocation.x - d.parentLocation.index * (rectangleWidth + padding))
                         .attr("y2", d => l.center[1] - d.parentLocation.y);
                 });
             });
         }
-    });
+    }
 
     //////////////////////////////////////
     // Auxilary functions  ///////////////
@@ -266,7 +309,6 @@
             .data(data);
 
         rectangle.exit()
-            .attr("class", "exit")
           .transition(t)
             .style("fill-opacity", 1e-6)
             .remove();
@@ -290,7 +332,7 @@
             .attr("class", "rectangle-text")
             .text(d => d.name);
 
-        singleEpisodeGroup.selectAll("line").data((d, i) => _.map(d.medications, elem => {return {medication: elem.name, parentLocation: {x: startX, y: startY, index: i, top: top}};}))
+        var episodeLines = singleEpisodeGroup.selectAll("line").data((d, i) => _.map(d.medications, elem => {return {medication: elem.name, parentLocation: {x: startX, y: startY, index: i, top: top}};}))
               .enter().append("line")
                 .attr("class", d => d.medication + "-lines")
                 .attr("stroke-width", 5)
@@ -299,6 +341,8 @@
                 .attr("y1", () => top ? rectangleHeight : 0)
                 .attr("x2", rectangleWidth / 2)
                 .attr("y2", rectangleHeight);
+
+        episodeLines.exit().remove();
     }
 
     function innerArc(innerRadius, startAngle, endAngle) {
@@ -322,4 +366,4 @@
         }
         return nbCircles;
     }
-}(d3));
+}(d3, d3.queue()));

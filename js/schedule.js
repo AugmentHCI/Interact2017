@@ -120,7 +120,7 @@
         setInterval(update, 1000);
         update();
         function update() {
-            d3.json("data/locations.json", function (error, locations) {
+            d3.json("data/locations.json?nocache=" + (new Date()).getTime(), function (error, locations) {
                 if (error) {
                     console.log(error);
                 }
@@ -217,7 +217,7 @@
                     // append the actual text
                     textGroup.append("text")
                         .each(function (d) {
-                            for (i = 0; i < d.info.length; i++) {
+                            for (var i = 0; i < d.info.length; i++) {
                                 d3.select(this).append("tspan")
                                     .text(d.info[i][dr.key])
                                     .attr("y", rectangleHeight/2)
