@@ -34,102 +34,29 @@
     queue
         .defer(d3.json, "data/dosageregimen.json")
         .defer(d3.json, "data/janedoe.json")
+        .defer(d3.json, "data/druginfo.json")
         .await(draw);
 
-    function draw(error, dosageregimen, healthFile) {
+    function draw(error, dosageregimen, healthFile, druginfo) {
         if (error) {
             console.log(error);
         }
 
-        var totalWeight = _.reduce(dosageregimen, function(memo, el){ return memo + el.weight; }, 0);
-        var columnWidth = width / totalWeight;
 
-        var tempIndex = 0;
-        for(var i = 0; i < dosageregimen.length; i++) {
-            dosageregimen[i].startIndex = tempIndex;
-            tempIndex += dosageregimen[i].weight;
-        }
 
-        var headers = textLayer.selectAll("text.header").data(dosageregimen, d => d.name);
+        var lastMod = 0;
 
-        headers.exit()
-            .attr("class", "exit")
-          .transition(t)
-            .style("fill-opacity", 1e-6)
-            .remove();
-
-        var headerGroup = headers.enter().append("g")
-            .attr("class", "header-group")
-            .attr("transform", d =>
-                "translate(" + (d.startIndex * columnWidth + (d.weight *  columnWidth)/2) + "," + topMargin + ")");
-
-        headerGroup.append("text")
-            .attr("class", "header")
-            .attr("dy", ".35em")
-            .text(d => d.value);
-
-        headerGroup.append("svg:image")
-            .attr("width", imageSize)
-            .attr("height", imageSize)
-            .attr("x", -imageSize/2)
-            .attr("y", imageSize/2)
-            .attr("xlink:href",d => {
-                if (d.icon !== undefined) {
-                    return "images/periods/" + d.key + ".png";
-                } // no image available.
-            });
-
-        var auxLines = textLayer.selectAll("line.aux-line").data(dosageregimen, d => d.name);
-
-        auxLines.exit()
-            .attr("class", "exit")
-          .transition(t)
-            .style("fill-opacity", 1e-6)
-            .remove();
-
-        auxLines.enter().append("line")
-            .attr("class", "aux-line")
-            .attr("x1", d => d.startIndex * columnWidth - 1)
-            .attr("y1", 0)
-            .attr("x2", d => d.startIndex * columnWidth - 1)
-            .attr("y2", height);
-
-        var subLines = textLayer.selectAll("line.sub-line").data(dosageregimen, d => d.name);
-
-        subLines.exit()
-            .attr("class", "exit")
-            .transition(t)
-            .style("fill-opacity", 1e-6)
-            .remove();
-
-        subLines.enter().each(function(d) {
-            if(d.subdivision !== undefined) {
-                var nbLines = d.subdivision;
-                console.log(d.subdivision);
-                for (var i = 1; i < d.subdivision; i++) {
-                    d3.select(this).append("line")
-                        .attr("class", "sub-line")
-                        .attr("x1", d.startIndex * columnWidth - 1 + i*columnWidth/nbLines)
-                        .attr("y1", (imageSize+padding) *2)
-                        .attr("x2", d.startIndex * columnWidth - 1 + i*columnWidth/nbLines)
-                        .attr("y2", height);
-                }
-            }
-        });
+        var previousLocations = [];
 
         setInterval(update, 1000);
         update();
         function update() {
-            d3.json("data/locations.json?nocache=" + (new Date()).getTime(), function (error, locations) {
-                if (error) {
-                    console.log(error);
-                }
-
-                /////////////////////////////////////////
+            function schedule(locations) {
+/////////////////////////////////////////
                 // Sort and integrate dosage regimen   //
                 /////////////////////////////////////////
                 var topToBottomLocations = _.sortBy(locations, l => l.center[1]);
-                for(var i = 0; i < topToBottomLocations.length; i++) {
+                for (var i = 0; i < topToBottomLocations.length; i++) {
                     var loc = topToBottomLocations[i];
                     loc.info = [];
                     healthFile.episodes.forEach(episode => {
@@ -144,29 +71,29 @@
                 /////////////////////////////////////////
                 // grey banners to differentiate rows  //
                 /////////////////////////////////////////
-                var bannerHeight = height/(locations.length+1);
+                var bannerHeight = height / (locations.length + 1);
 
                 var backgroundBanners = backgroundLayer.selectAll("rect.background-banner").data(topToBottomLocations, l => l.id);
 
                 backgroundBanners.exit()
                     .attr("class", "exit")
-                  .transition(t)
+                    .transition(t)
                     .style("fill-opacity", 1e-6)
                     .remove();
 
                 backgroundBanners
-                  .transition(t)
-                    .attr("y", d => d.center[1] - bannerHeight/2 + rectangleHeight/2);
+                    .transition(t)
+                    .attr("y", d => d.center[1] - bannerHeight / 2 + rectangleHeight / 2);
 
                 backgroundBanners.enter().append("rect")
                     .attr("class", "background-banner")
                     .attr("x", 0)
-                    .attr("y", d => d.center[1] - bannerHeight/2 + rectangleHeight/2)
+                    .attr("y", d => d.center[1] - bannerHeight / 2 + rectangleHeight / 2)
                     .attr("width", width)
                     .attr("height", d => {
                         return d3.max([bannerHeight, d.radius]);
                     })
-                    .style("fill", (d,i) => i % 2 === 0 ? "darkgrey" : "black");
+                    .style("fill", (d, i) => i % 2 === 0 ? "darkgrey" : "black");
 
 
                 /////////////////////////////////////////
@@ -176,12 +103,12 @@
 
                 medBoxes.exit()
                     .attr("class", "exit")
-                  .transition(t)
+                    .transition(t)
                     .style("fill-opacity", 1e-6)
                     .remove();
 
                 medBoxes
-                  .transition(t)
+                    .transition(t)
                     .attr("x", d => d.center[0])
                     .attr("y", d => d.center[1]);
 
@@ -199,12 +126,12 @@
 
                 textGroups.exit()
                     .attr("class", "exit")
-                  .transition(t)
+                    .transition(t)
                     .style("fill-opacity", 1e-6)
                     .remove();
 
                 textGroups
-                  .transition(t)
+                    .transition(t)
                     .attr("transform", d => "translate(0," + d.center[1] + ")");
 
                 var textGroup = textGroups.enter().append("g")
@@ -212,7 +139,7 @@
                     .attr("transform", d => "translate(0," + d.center[1] + ")");
 
                 dosageregimen.forEach(dr => {
-                    var drx = dr.startIndex * columnWidth + (dr.weight *  columnWidth)/2;
+                    var drx = dr.startIndex * columnWidth + (dr.weight * columnWidth) / 2;
 
                     // append the actual text
                     textGroup.append("text")
@@ -220,8 +147,8 @@
                             for (var i = 0; i < d.info.length; i++) {
                                 d3.select(this).append("tspan")
                                     .text(d.info[i][dr.key])
-                                    .attr("y", rectangleHeight/2)
-                                    .attr("dy", i ? i*imageSize : 0)
+                                    .attr("y", rectangleHeight / 2)
+                                    .attr("dy", i ? i * imageSize : 0)
                                     .attr("x", drx)
                                     .attr("class", "dosage-text");
                             }
@@ -237,15 +164,15 @@
                                     return memo;
                                 }
                             }, 0);
-                            var startX = drx - ((totalPills/2)*(imageSize+padding));
+                            var startX = drx - ((totalPills / 2) * (imageSize + padding));
                             for (i = 0; i < totalPills; i++) {
                                 d3.select(this).append("svg:image")
                                     .attr("width", imageSize)
                                     .attr("height", imageSize)
                                     .attr("id", i)
                                     .attr("x", (startX + i * (imageSize + padding) ))
-                                    .attr("y",  -2*imageSize + rectangleHeight/2)
-                                    .attr("xlink:href",  d => {
+                                    .attr("y", -2 * imageSize + rectangleHeight / 2)
+                                    .attr("xlink:href", d => {
                                         if (dr.showIcon !== undefined && d.icon !== undefined) {
                                             return "images/pills/" + d.icon + ".png";
                                         }
@@ -253,6 +180,41 @@
                             }
                         });
                 });
+            }
+
+            d3.json("data/ram/locations.json?nocache=" + (new Date()).getTime(), function (error, locations) {
+                if (error) {
+                    console.log(error);
+                }
+
+                if (locations[0].timestap <= lastMod) {
+                    return;
+                }
+
+                var similar = true;
+                for (var i = 0; i < locations.length && similar && previousLocations.length !== 0; i++) {
+                    var loc = locations[i];
+                    var prev = _.findWhere(previousLocations, {id: loc.id});
+                    if (loc.center[0] > prev.center[0] + 20 || loc.center[0] < prev.center[0] - 20) {
+                        similar = false;
+                    }
+                    if (loc.center[1] > prev.center[1] + 20 || loc.center[1] < prev.center[1] - 20) {
+                        similar = false;
+                    }
+                }
+                if(similar && previousLocations.length !== 0) {
+                    return;
+                }
+                previousLocations = locations;
+
+                if (error) {
+                    console.log(error);
+                }
+
+                druginfo.forEach(info => {
+                    _.extend(_.findWhere(locations, {id: info.id}), info);
+                });
+                schedule(locations);
             });
         }
     }

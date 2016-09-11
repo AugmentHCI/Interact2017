@@ -42,17 +42,17 @@
     function draw(error, druginfo, data) {
         var nbEpisodes = data.episodes.length;
         var episodeStartX = (width - rectangleWidth * nbEpisodes - (nbEpisodes - 1) * padding) / 2;
-        drawRectangle(data.episodes, "Episodes", episodeStartX, topMargin, true);
+        drawRectangle(data.episodes, "Aandoeningen", episodeStartX, topMargin, true);
 
         var nbAllergies = data.allergies.length;
         var allergyStartX = width - rectangleWidth * nbAllergies - (1 + nbAllergies) * padding;
         var allergyStartY = height - rectangleHeight - 2 * padding;
-        drawRectangle(data.allergies, "Allergies", allergyStartX, allergyStartY, false);
+        drawRectangle(data.allergies, "Allergieën", allergyStartX, allergyStartY, false);
 
         var personalStartX = 2 * padding;
         var personalStartY = allergyStartY;
         var personalData = [{name: data.personal.name, medications: []}, {name: data.personal.age, medications: []}, {name: data.personal.gender, medications: []}, {name: data.personal.weight, medications: []}];
-        drawRectangle(personalData, "Personal", personalStartX, personalStartY, false);
+        drawRectangle(personalData, "Persoonlijke informatie", personalStartX, personalStartY, false);
 
         var lastMod = 0;
 
@@ -62,7 +62,8 @@
         update();
         function update() {
             d3.json("data/ram/locations.json?nocache=" + new Date().getTime(), function (error, locations) {
-                if (locations.timestap <= lastMod) {
+            // d3.json("data/locations.json?nocache=" + new Date().getTime(), function (error, locations) {
+                if (locations[0].timestap <= lastMod) {
                     return;
                 }
 
@@ -71,16 +72,13 @@
                     var loc = locations[i];
                     var prev = _.findWhere(previousLocations, {id: loc.id});
                     if (loc.center[0] > prev.center[0] + 20 || loc.center[0] < prev.center[0] - 20) {
-                        console.log("here1");
                         similar = false;
                     }
                     if (loc.center[1] > prev.center[1] + 20 || loc.center[1] < prev.center[1] - 20) {
-                        console.log("here2");
                         similar = false;
                     }
                 }
                 if(similar && previousLocations.length !== 0) {
-                        console.log("now!");
                         return;
                 }
                 previousLocations = locations;

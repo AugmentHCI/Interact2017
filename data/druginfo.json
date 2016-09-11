@@ -1,51 +1,43 @@
 [
   {
-    "id": 10,
+    "id": 14,
     "name": "paracetamol",
     "halfLife": 72000,
     "interactions": [
-      {
-        "name": "ibuprofene",
-        "type": "severe"
-      }
     ],
     "warnings": [
-      "breastfeeding",
+      "borstvoeding",
       "alcohol"
     ],
     "icon": "paracetamol",
     "sideEffects": [
       {
-        "name": "Headache",
+        "name": "Hoofdpijn",
         "risk": 0.1
       },
       {
-        "name": "Dizziness",
+        "name": "Duizelig",
         "risk": 0.2
       }
     ]
   },
   {
-    "id": 11,
+    "id": 17,
     "name": "ibuprofene",
     "halfLife": 1200,
     "interactions": [
-      {
-        "name": "paracetamol",
-        "type": "severe"
-      }
     ],
     "warnings": [
-      "breastfeeding"
+      "borstvoeding"
     ],
     "icon": "paracetamol",
     "sideEffects": [
       {
-        "name": "Loss of appetite",
+        "name": "Verlies van eetlust",
         "risk": 0.01
       },
       {
-        "name": "High blood pressure",
+        "name": "Hoge bloeddruk",
         "risk": 0.001
       }
     ]
@@ -54,19 +46,13 @@
     "id": 9,
     "name": "flixonase",
     "halfLife": 1200,
-    "interactions": [
-      {
-        "name": "ibuprofene",
-        "type": "warning"
-      }
-    ],
     "warnings": [
-      "breastfeeding"
+      "borstvoeding"
     ],
     "icon": "inhalor",
     "sideEffects": [
       {
-        "name": "Headache",
+        "name": "Hoofdpijn",
         "risk": 0.9
       }
     ]
