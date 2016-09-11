@@ -17,7 +17,7 @@
         wMul = window.innerWidth / camFieldWidth,
         hMul = window.innerHeight / camFieldHeight;
 
-    var tickTime = 200;
+    var tickTime = 500;
 
     var width = window.innerWidth,
         height = window.innerHeight;
@@ -258,7 +258,7 @@
                     /////////////////////////////////////////
                     // grey banners to differentiate rows  //
                     /////////////////////////////////////////
-                    var bannerHeight = height / (locations.length + 1);
+                    var bannerHeight = height / (locations.length + 3);
 
                     var backgroundBanners = layer1.selectAll("rect.background-banner").data(topToBottomLocations, l => l.id);
 
@@ -429,7 +429,7 @@
                     /////////////////////////////////////////
                     // grey banners to differentiate rows  //
                     /////////////////////////////////////////
-                    var bannerWidth = width / (locations.length + 1);
+                    var bannerWidth = width / (locations.length + 3);
 
                     var backgroundBanners = layer1.selectAll("rect.background-banner").data(leftToRightLocations, l => l.id);
 
