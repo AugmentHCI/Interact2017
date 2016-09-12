@@ -7,10 +7,12 @@
     var previousLocations = [];
     var previousMode = "init";
 
-    var xStart = 160;
-    var yStart = 100;
-    var xEnd = 1810;
-    var YEnd = 980;
+    var timer = 0;
+
+    var xStart = 150;
+    var yStart = 80;
+    var xEnd = 1800;
+    var YEnd = 900;
 
     var camFieldWidth = xEnd - xStart,
         camFieldHeight = YEnd - yStart,
@@ -29,7 +31,7 @@
         radiusWidth = 20,
         negativeBuffer = -40,
         imageSize = 40,
-        xValue = 200,
+        xValue = 300,
         yValue = 200;
 
     var t = d3.transition()
@@ -86,10 +88,11 @@
         } else {
             mode = "interactions";
         }
-        if (previousMode !== mode && previousMode !== "init") {
+        if ((previousMode !== mode && previousMode !== "init") || timer > tickTime * 30) {
             layer1.selectAll("*").remove();
             layer2.selectAll("*").remove();
             layer3.selectAll("*").remove();
+            timer = 0;
         }
         previousMode = mode;
         return mode;
@@ -146,6 +149,8 @@
                 if (errorUpdate) {
                     console.log(errorUpdate);
                 }
+
+                timer += tickTime;
 
                 // if no new data, do nothing
                 if (locations[0].timestap <= lastMod) {

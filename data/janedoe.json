@@ -1,14 +1,14 @@
 {
   "personal": {
-    "name": "Jane Doe",
+    "name": "Julie Janssens",
     "age": 26,
-    "gender": "female",
+    "gender": "vrouw",
     "weight": "65 kg",
     "image": "http://drupalbase.eku. edu/sites/default/files/people_images/Female_User_Icon_clip_art_hight.png"
   },
   "episodes": [
     {
-      "name": "headache",
+      "name": "Hoofdpijn",
       "medications": [
         {
           "name": "paracetamol",
@@ -21,7 +21,7 @@
       ]
     },
     {
-      "name": "fibromylgia",
+      "name": "fibromyalgie",
       "medications": [
         {
           "name": "cymbalta",
@@ -43,7 +43,7 @@
       ]
     },
     {
-      "name": "hay fever",
+      "name": "hooikoorst",
       "medications": [
         {
           "name": "flixonase",
@@ -57,7 +57,7 @@
   ],
   "allergies": [
     {
-      "name": "ampicillin",
+      "name": "ampicilline",
       "medications": [
       ]
     },

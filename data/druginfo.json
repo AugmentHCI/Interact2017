@@ -1,6 +1,6 @@
 [
   {
-    "id": 14,
+    "id": 12,
     "name": "paracetamol",
     "halfLife": 72000,
     "interactions": [
@@ -15,17 +15,17 @@
     ],
     "sideEffects": [
       {
-        "name": "Headache",
+        "name": "Hoofdpijn",
         "risk": 0.1
       },
       {
-        "name": "Dizziness",
+        "name": "Duizeligheid",
         "risk": 0.2
       }
     ]
   },
   {
-    "id": 17,
+    "id": 13,
     "name": "ibuprofene",
     "halfLife": 1200,
     "interactions": [
@@ -39,17 +39,17 @@
     ],
     "sideEffects": [
       {
-        "name": "Loss of appetite",
+        "name": "Verlies eetlust",
         "risk": 0.01
       },
       {
-        "name": "High blood pressure",
+        "name": "Hoge bloeddruk",
         "risk": 0.001
       }
     ]
   },
   {
-    "id": 2,
+    "id": 14,
     "name": "flixonase",
     "halfLife": 1200,
     "interactions": [
@@ -63,7 +63,7 @@
     ],
     "sideEffects": [
       {
-        "name": "Headache",
+        "name": "Hoofdpijn",
         "risk": 0.9
       }
     ]
