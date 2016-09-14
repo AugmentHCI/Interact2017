@@ -6,11 +6,12 @@
     var lastMod = 0;
     var previousLocations = [];
     var previousMode = "init";
+    var rectangleDrawn = false;
 
     var timer = 0;
 
-    var xStart = 150;
-    var yStart = 80;
+    var xStart = -100;
+    var yStart = -100;
     var xEnd = 1800;
     var YEnd = 900;
 
@@ -19,7 +20,7 @@
         wMul = window.innerWidth / camFieldWidth,
         hMul = window.innerHeight / camFieldHeight;
 
-    var tickTime = 500;
+    var tickTime = 200;
 
     var width = window.innerWidth,
         height = window.innerHeight;
@@ -29,7 +30,7 @@
         rectangleWidth = 130,
         rectangleHeight = 40,
         radiusWidth = 20,
-        negativeBuffer = -40,
+        negativeBuffer = -400,
         imageSize = 40,
         xValue = 300,
         yValue = 200;
@@ -88,11 +89,12 @@
         } else {
             mode = "interactions";
         }
-        if ((previousMode !== mode && previousMode !== "init") || timer > tickTime * 30) {
+        if ((previousMode !== mode && previousMode !== "init") || timer > tickTime * 80) {
             layer1.selectAll("*").remove();
             layer2.selectAll("*").remove();
             layer3.selectAll("*").remove();
             timer = 0;
+            rectangleDrawn = false;
         }
         previousMode = mode;
         return mode;
@@ -471,9 +473,9 @@
                     auxLinesSE.enter().append("line")
                         .attr("class", "aux-line")
                         .attr("x1", width / (locations.length + 1) + negativeBuffer)
-                        .attr("y1", (d, i) => (i + 1) * rowHeight - rowHeight / 2)
+                        .attr("y1", (d, i) => (i + 1) * rowHeight - rowHeight / 2 + padding)
                         .attr("x2", width)
-                        .attr("y2", (d, i) => (i + 1) * rowHeight - rowHeight / 2);
+                        .attr("y2", (d, i) => (i + 1) * rowHeight - rowHeight / 2 + padding);
 
                     // /////////////////////////////////////////
                     // // aux box to see location medication  //
@@ -528,7 +530,7 @@
                                     d3Object
                                     // .attr("width", 20)
                                         .attr("height", 15)
-                                        .attr("y", (k + 1) * rowHeight + 30 * Math.floor(j / 20))
+                                        .attr("y", (k + 1) * rowHeight + 30 * Math.floor(j / 20) + rowHeight/3)
                                         .attr("x", ()=> j % 20 * 10)
                                         .style("fill", () => {
                                             var temp = _.findWhere(sideEffectOccurences, {
@@ -548,9 +550,12 @@
                     layer1.attr("class", "rectangle-layer");
                     layer2.attr("class", "medication-layer");
 
-                    drawRectangle(layer1, healthFile.episodes, "Aandoeningen", episodeStartX, topMargin, true);
-                    drawRectangle(layer1, healthFile.allergies, "Allergieën", allergyStartX, allergyStartY, false);
-                    drawRectangle(layer1, personalData, "Persoonlijke informatie", personalStartX, personalStartY, false);
+                    if(!rectangleDrawn) {
+                        drawRectangle(layer1, healthFile.episodes, "Aandoeningen", episodeStartX, topMargin, true);
+                        drawRectangle(layer1, healthFile.allergies, "Allergieën", allergyStartX, allergyStartY, false);
+                        drawRectangle(layer1, personalData, "Persoonlijke informatie", personalStartX, personalStartY, false);
+                        rectangleDrawn = true;
+                    }
                     //////////////////////////////////////
                     // Interaction lines /////////////////
                     //////////////////////////////////////

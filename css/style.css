@@ -75,7 +75,7 @@ body {
 }
 
 .sub-line {
-    opacity: 0.5;
+    opacity: 0.3;
     stroke-width: 1;
     stroke: grey;
 }
