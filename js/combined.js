@@ -3,27 +3,17 @@
 (function (d3, queue) {
     "use strict";
 
-    var lastMod = 0;
-    var previousLocations = [];
-    var previousMode = "init";
-    var rectangleDrawn = false;
-
-    var timer = 0;
-
-    var xStart = -100;
-    var yStart = -100;
-    var xEnd = 1800;
-    var YEnd = 900;
-
-    var camFieldWidth = xEnd - xStart,
-        camFieldHeight = YEnd - yStart,
-        wMul = window.innerWidth / camFieldWidth,
-        hMul = window.innerHeight / camFieldHeight;
+    ///////////////////////////////////////////
+    var debug = false;
+    var ModeEnum = Object.freeze({"init":1, "interactions":2, "schedule":3, "sideEffects": 4});
+    ///////////////////////////////////////////
 
     var tickTime = 200;
 
-    var width = window.innerWidth,
-        height = window.innerHeight;
+    var xStart = 0,
+        yStart = 0,
+        xEnd = 1920,
+        yEnd = 1080;
 
     var padding = 5,
         topMargin = 20,
@@ -35,8 +25,22 @@
         xValue = 300,
         yValue = 200;
 
+    var camFieldWidth = xEnd - xStart,
+        camFieldHeight = yEnd - yStart,
+        wMul = window.innerWidth / camFieldWidth,
+        hMul = window.innerHeight / camFieldHeight,
+        width = window.innerWidth,
+        height = window.innerHeight;
+
     var t = d3.transition()
         .duration(tickTime/2);
+
+    var importedNode,
+        lastMod = 0,
+        previousLocations = [],
+        rectangleDrawn = false,
+        timer = 0,
+        previousMode = ModeEnum.init;
 
     var svg = d3.select("body").append("svg");
     svg.attr("width", width)
@@ -60,7 +64,6 @@
         .attr("width", width)
         .attr("height", height);
 
-    var importedNode;
     //Import the plane
     d3.xml("images/icons/person.svg").mimeType("image/svg+xml").get(function(error, xml) {
         if (error) {console.log(error); return;}
@@ -73,56 +76,11 @@
         .defer(d3.json, "data/dosageregimen.json")
         .await(draw);
 
-    function setMode(locations) {
-        var mode = "init";
-        var smallX = 0; // booleans don't work well with only removing all elements when change
-        var smallY = 0; // booleans don't work well with only removing all elements when change
-        locations.forEach(loc => {
-            smallX += xValue > +loc.center[0] ? 1 : 0;
-            smallY += yValue > +loc.center[1] ? 1 : 0;
-        });
-
-        if (smallX === locations.length) {
-            mode = "schedule";
-        } else if (smallY === locations.length) {
-            mode = "side-effects";
-        } else {
-            mode = "interactions";
-        }
-        if ((previousMode !== mode && previousMode !== "init") || timer > tickTime * 80) {
-            layer1.selectAll("*").remove();
-            layer2.selectAll("*").remove();
-            layer3.selectAll("*").remove();
-            timer = 0;
-            rectangleDrawn = false;
-        }
-        previousMode = mode;
-        return mode;
-    }
-
-    function checkIfSimilar(locations) {
-        if (previousLocations.length === 0) {
-            return false;
-        }
-        var similar = true;
-        for (var i = 0; i < locations.length && similar && previousLocations.length !== 0; i++) {
-            var loc = locations[i];
-            var prev = _.findWhere(previousLocations, {id: loc.id});
-            if (loc.center[0] > prev.center[0] + 20 || loc.center[0] < prev.center[0] - 20) {
-                similar = false;
-            }
-            if (loc.center[1] > prev.center[1] + 20 || loc.center[1] < prev.center[1] - 20) {
-                similar = false;
-            }
-        }
-        previousLocations = locations;
-        return similar;
-    }
-
     function draw(error, druginfo, healthFile, dosageregimen) {
         if(error) {
             console.log(error);
         }
+
         var nbEpisodes = healthFile.episodes.length;
         var episodeStartX = (width - rectangleWidth * nbEpisodes - (nbEpisodes - 1) * padding) / 2;
 
@@ -147,12 +105,15 @@
         update();
         function update() {
             d3.json("data/ram/locations.json?nocache=" + new Date().getTime(), function (errorUpdate, locations) {
+                if (debug) {
+                    debugDrawMedicationLocations(locations);
+                }
+                timer += tickTime;
+
                 // log potential errors
                 if (errorUpdate) {
                     console.log(errorUpdate);
                 }
-
-                timer += tickTime;
 
                 // if no new data, do nothing
                 if (locations[0].timestap <= lastMod) {
@@ -176,9 +137,9 @@
 
                 var mode = setMode(locations, previousMode);
 
-                if(mode === "schedule") {
-                    layer1.attr("class", "background-layer");
-                    layer2.attr("class", "text-layer");
+                layer1.attr("class", "background-layer");
+                layer2.attr("class", "text-layer");
+                if(mode === ModeEnum.schedule) {
 
                     var headers = layer2.selectAll("text.header").data(dosageregimen, d => d.name);
 
@@ -289,30 +250,6 @@
                         })
                         .style("fill", (d, i) => i % 2 === 0 ? "darkgrey" : "black");
 
-
-                    // /////////////////////////////////////////
-                    // // aux box to see location medication  //
-                    // /////////////////////////////////////////
-                    // var medBoxes = layer1.selectAll("rect.med-box").data(topToBottomLocations, l => l.id);
-                    //
-                    // medBoxes.exit()
-                    //     .attr("class", "exit")
-                    //     .transition(t)
-                    //     .style("fill-opacity", 1e-6)
-                    //     .remove();
-                    //
-                    // medBoxes
-                    //     .transition(t)
-                    //     .attr("x", d => d.center[0])
-                    //     .attr("y", d => d.center[1]);
-                    //
-                    // medBoxes.enter().append("rect")
-                    //     .attr("class", "med-box")
-                    //     .attr("x", d => d.center[0])
-                    //     .attr("y", d => d.center[1])
-                    //     .attr("width", rectangleWidth)
-                    //     .attr("height", rectangleHeight);
-
                     /////////////////////////////////////////
                     // add the actual dosage regimen text  //
                     /////////////////////////////////////////
@@ -374,10 +311,7 @@
                                 }
                             });
                     });
-                } else if (mode === "side-effects") {
-
-                    layer1.attr("class", "background-layer");
-                    layer2.attr("class", "text-layer");
+                } else if (mode === ModeEnum.sideEffects) {
                     /////////////////////////////////////////
                     // Sort locations from left to right   //
                     /////////////////////////////////////////
@@ -403,7 +337,6 @@
 
 
                     //todo for each side effect search occurences
-
                     var sideEffectOccurences = [];
                     sideEffects.forEach(effect => {
                         locations.forEach(med => {
@@ -477,29 +410,6 @@
                         .attr("x2", width)
                         .attr("y2", (d, i) => (i + 1) * rowHeight - rowHeight / 2 + padding);
 
-                    // /////////////////////////////////////////
-                    // // aux box to see location medication  //
-                    // /////////////////////////////////////////
-                    // var medBoxes = layer1.selectAll("rect.med-box").data(leftToRightLocations, l => l.id);
-                    //
-                    // medBoxes.exit()
-                    //     .attr("class", "exit")
-                    //     .transition(t)
-                    //     .style("fill-opacity", 1e-6)
-                    //     .remove();
-                    //
-                    // medBoxes
-                    //     .transition(t)
-                    //     .attr("x", d => d.center[0])
-                    //     .attr("y", d => d.center[1]);
-                    //
-                    // medBoxes.enter().append("rect")
-                    //     .attr("class", "med-box")
-                    //     .attr("x", d => d.center[0])
-                    //     .attr("y", d => d.center[1])
-                    //     .attr("width", rectangleWidth)
-                    //     .attr("height", rectangleHeight);
-
                     var iconGroups = layer3.selectAll("g.icon-group").data(leftToRightLocations, loc => loc.name);
 
                     iconGroups.exit()
@@ -546,7 +456,7 @@
                                 }
                             });
                     }
-                } else {
+                } else if (mode === ModeEnum.interactions) {
                     layer1.attr("class", "rectangle-layer");
                     layer2.attr("class", "medication-layer");
 
@@ -840,5 +750,73 @@
             nbCircles++;
         }
         return nbCircles;
+    }
+
+    function debugDrawMedicationLocations(locations) {
+        var medBoxes = layer1.selectAll("rect.med-box").data(locations, l => l.id);
+
+        medBoxes.exit()
+            .attr("class", "exit")
+            .transition(t)
+            .style("fill-opacity", 1e-6)
+            .remove();
+
+        medBoxes
+            .transition(t)
+            .attr("x", d => d.center[0])
+            .attr("y", d => d.center[1]);
+
+        medBoxes.enter().append("rect")
+            .attr("class", "med-box")
+            .attr("x", d => d.center[0])
+            .attr("y", d => d.center[1])
+            .attr("width", rectangleWidth)
+            .attr("height", rectangleHeight);
+    }
+
+    function setMode(locations) {
+        var mode = ModeEnum.init;
+        var smallX = 0; // booleans don't work well with only removing all elements when change
+        var smallY = 0; // booleans don't work well with only removing all elements when change
+        locations.forEach(loc => {
+            smallX += xValue > +loc.center[0] ? 1 : 0;
+            smallY += yValue > +loc.center[1] ? 1 : 0;
+        });
+
+        if (smallX === locations.length) {
+            mode = ModeEnum.schedule;
+        } else if (smallY === locations.length) {
+            mode = ModeEnum.sideEffects;
+        } else {
+            mode = ModeEnum.interactions;
+        }
+        if ((previousMode !== mode && previousMode !== ModeEnum.init) || timer > tickTime * 80) {
+            layer1.selectAll("*").remove();
+            layer2.selectAll("*").remove();
+            layer3.selectAll("*").remove();
+            timer = 0;
+            rectangleDrawn = false;
+        }
+        previousMode = mode;
+        return mode;
+    }
+
+    function checkIfSimilar(locations) {
+        if (previousLocations.length === 0) {
+            return false;
+        }
+        var similar = true;
+        for (var i = 0; i < locations.length && similar && previousLocations.length !== 0; i++) {
+            var loc = locations[i];
+            var prev = _.findWhere(previousLocations, {id: loc.id});
+            if (loc.center[0] > prev.center[0] + 20 || loc.center[0] < prev.center[0] - 20) {
+                similar = false;
+            }
+            if (loc.center[1] > prev.center[1] + 20 || loc.center[1] < prev.center[1] - 20) {
+                similar = false;
+            }
+        }
+        previousLocations = locations;
+        return similar;
     }
 }(d3, d3.queue()));
