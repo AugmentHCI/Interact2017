@@ -8,12 +8,12 @@
     var ModeEnum = Object.freeze({"init":1, "interactions":2, "schedule":3, "sideEffects": 4});
     ///////////////////////////////////////////
 
-    var tickTime = 200;
+    var tickTime = 150;
 
-    var xStart = 0,
-        yStart = 0,
-        xEnd = 1920,
-        yEnd = 1080;
+    var xStart = 200,
+        yStart = 70,
+        xEnd = 1750,
+        yEnd = 900;
 
     var padding = 5,
         topMargin = 20,
@@ -23,7 +23,8 @@
         negativeBuffer = -400,
         imageSize = 40,
         xValue = 300,
-        yValue = 200;
+        yValue = 200,
+        backgroundBannerHeight = 200;
 
     var camFieldWidth = xEnd - xStart,
         camFieldHeight = yEnd - yStart,
@@ -33,13 +34,12 @@
         height = window.innerHeight;
 
     var t = d3.transition()
-        .duration(tickTime/2);
+        .duration(750);
 
     var importedNode,
         lastMod = 0,
         previousLocations = [],
         rectangleDrawn = false,
-        timer = 0,
         previousMode = ModeEnum.init;
 
     var svg = d3.select("body").append("svg");
@@ -108,7 +108,6 @@
                 if (debug) {
                     debugDrawMedicationLocations(locations);
                 }
-                timer += tickTime;
 
                 // log potential errors
                 if (errorUpdate) {
@@ -116,12 +115,7 @@
                 }
 
                 // if no new data, do nothing
-                if (locations[0].timestap <= lastMod) {
-                    return;
-                }
-
-                // check if new locations are different enough from the previous locations
-                if(checkIfSimilar(locations, previousLocations)) {
+                if (locations[0].timestap <= lastMod || checkIfSimilar(locations, previousLocations)) {
                     return;
                 }
 
@@ -137,10 +131,12 @@
 
                 var mode = setMode(locations, previousMode);
 
-                layer1.attr("class", "background-layer");
-                layer2.attr("class", "text-layer");
+                /////////////////////////////////////////
+                // Side effects mode                   //
+                /////////////////////////////////////////
                 if(mode === ModeEnum.schedule) {
 
+                    // headers that show when medication should be taken
                     var headers = layer2.selectAll("text.header").data(dosageregimen, d => d.name);
 
                     headers.exit()
@@ -185,18 +181,18 @@
                         .attr("x2", d => d.startIndex * columnWidth - 1)
                         .attr("y2", height);
 
-                    var subLines = layer2.selectAll("line.sub-line").data(dosageregimen, d => d.name);
+                    var subAuxLines = layer2.selectAll("line.sub-line").data(dosageregimen, d => d.name);
 
-                    subLines.exit()
+                    subAuxLines.exit()
                         .attr("class", "exit")
                         .transition(t)
                         .style("fill-opacity", 1e-6)
                         .remove();
 
-                    subLines.enter().each(function(d) {
+                    subAuxLines.enter().each(function(d) {
                         if(d.subdivision !== undefined) {
                             var nbLines = d.subdivision;
-                            for (var i = 1; i < d.subdivision; i++) {
+                            for (var i = 1; i < nbLines; i++) {
                                 d3.select(this).append("line")
                                     .attr("class", "sub-line")
                                     .attr("x1", d.startIndex * columnWidth - 1 + i*columnWidth/nbLines)
@@ -208,11 +204,11 @@
                     });
 
                     /////////////////////////////////////////
-                    // Sort and integrate dosage regimen   //
+                    // Integrate dosage regimen   //
                     /////////////////////////////////////////
-                    var topToBottomLocations = _.sortBy(locations, l => l.center[1]);
-                    for (var i = 0; i < topToBottomLocations.length; i++) {
-                        var loc = topToBottomLocations[i];
+                    // var topToBottomLocations = _.sortBy(locations, l => l.center[1]);
+                    for (var i = 0; i < locations.length; i++) {
+                        var loc = locations[i];
                         loc.info = [];
                         healthFile.episodes.forEach(episode => {
                             episode.medications.forEach(med => {
@@ -226,46 +222,44 @@
                     /////////////////////////////////////////
                     // grey banners to differentiate rows  //
                     /////////////////////////////////////////
-                    var bannerHeight = height / (locations.length + 3);
 
-                    var backgroundBanners = layer1.selectAll("rect.background-banner").data(topToBottomLocations, l => l.id);
+                    var horizontalBackgroundBanners = layer1.selectAll("rect.background-banner").data(locations, l => l.id);
 
-                    backgroundBanners.exit()
+                    horizontalBackgroundBanners.exit()
                         .attr("class", "exit")
                         .transition(t)
                         .style("fill-opacity", 1e-6)
                         .remove();
 
-                    backgroundBanners
+                    horizontalBackgroundBanners
                         .transition(t)
-                        .attr("y", d => d.center[1] - bannerHeight / 2 + rectangleHeight / 2);
+                        .attr("y", d => d.center[1] - backgroundBannerHeight / 2 + rectangleHeight / 2);
 
-                    backgroundBanners.enter().append("rect")
+                    horizontalBackgroundBanners.enter().append("rect")
                         .attr("class", "background-banner")
                         .attr("x", 0)
-                        .attr("y", d => d.center[1] - bannerHeight / 2 + rectangleHeight / 2)
+                        .attr("y", d => d.center[1] - backgroundBannerHeight / 2 + rectangleHeight / 2)
                         .attr("width", width)
                         .attr("height", d => {
-                            return d3.max([bannerHeight, d.radius]);
-                        })
-                        .style("fill", (d, i) => i % 2 === 0 ? "darkgrey" : "black");
+                            return d3.max([backgroundBannerHeight, d.radius]);
+                        });
 
                     /////////////////////////////////////////
                     // add the actual dosage regimen text  //
                     /////////////////////////////////////////
-                    var textGroups = layer2.selectAll("g.text-group").data(topToBottomLocations, loc => loc.name);
+                    var scheduleTextGroups = layer2.selectAll("g.text-group").data(locations, loc => loc.name);
 
-                    textGroups.exit()
+                    scheduleTextGroups.exit()
                         .attr("class", "exit")
                         .transition(t)
                         .style("fill-opacity", 1e-6)
                         .remove();
 
-                    textGroups
+                    scheduleTextGroups
                         .transition(t)
                         .attr("transform", d => "translate(0," + d.center[1] + ")");
 
-                    var textGroup = textGroups.enter().append("g")
+                    var scheduleTextGroup = scheduleTextGroups.enter().append("g")
                         .attr("class", "text-group")
                         .attr("transform", d => "translate(0," + d.center[1] + ")");
 
@@ -273,7 +267,7 @@
                         var drx = dr.startIndex * columnWidth + (dr.weight * columnWidth) / 2;
 
                         // append the actual text
-                        textGroup.append("text")
+                        scheduleTextGroup.append("text")
                             .each(function (d) {
                                 for (var i = 0; i < d.info.length; i++) {
                                     d3.select(this).append("tspan")
@@ -286,7 +280,7 @@
                             });
 
                         // append the images of pills if available
-                        textGroup
+                        scheduleTextGroup
                             .each(function (d) {
                                 var totalPills = _.reduce(d.info, function (memo, el) {
                                     if (el[dr.key] !== undefined) {
@@ -311,11 +305,12 @@
                                 }
                             });
                     });
+
+                /////////////////////////////////////////
+                // Side effects mode                   //
+                /////////////////////////////////////////
                 } else if (mode === ModeEnum.sideEffects) {
-                    /////////////////////////////////////////
                     // Sort locations from left to right   //
-                    /////////////////////////////////////////
-                    var leftToRightLocations = _.sortBy(locations, l => l.center[0]);
 
                     var tempSE = [];
                     locations.forEach(loc => {
@@ -325,32 +320,11 @@
                             });
                         }
                     });
+                    var sideEffects = _.uniq(tempSE.sort(), true);
 
-                    /////////////////////////////////////////
-                    // add titles to each row              //
-                    /////////////////////////////////////////
-                    var tempSor = tempSE.sort();
-                    var sideEffects = _.uniq(tempSor, true);
-                    var nbSideEffects = sideEffects.length;
+                    var rowHeight = height / (sideEffects.length + 1);
 
-                    var rowHeight = height / (nbSideEffects + 1);
-
-
-                    //todo for each side effect search occurences
-                    var sideEffectOccurences = [];
-                    sideEffects.forEach(effect => {
-                        locations.forEach(med => {
-                            var temp = _.findWhere(med.sideEffects, {name: effect});
-                            if (temp !== undefined) {
-                                sideEffectOccurences.push({name: effect, drug: med.name, risk: temp.risk});
-                            } else {
-                                sideEffectOccurences.push({name: effect, drug: med.name, risk: undefined});
-                            }
-                        });
-                    });
-
-
-                    var rowTitles = layer2.selectAll("text.row-title").data(sideEffects);
+                    var rowTitles = layer2.selectAll("text.row-title").data(sideEffects, effect => effect.name);
 
                     rowTitles.exit()
                         .attr("class", "exit")
@@ -361,7 +335,7 @@
                     rowTitles.enter().append("text")
                         .attr("class", "row-title")
                         .attr("x", padding)
-                        .attr("y", (d, i)=>(i + 1) * height / (nbSideEffects + 1))
+                        .attr("y", (d, i)=>(i + 1) * height / (sideEffects.length + 1))
                         .attr("dy", ".35em")
                         .text(d => d);
 
@@ -371,7 +345,7 @@
                     /////////////////////////////////////////
                     var bannerWidth = width / (locations.length + 3);
 
-                    var backgroundBanners = layer1.selectAll("rect.background-banner").data(leftToRightLocations, l => l.id);
+                    var backgroundBanners = layer1.selectAll("rect.background-banner").data(locations, l => l.id);
 
                     backgroundBanners.exit()
                         .attr("class", "exit")
@@ -390,8 +364,8 @@
                         .attr("width", d => {
                             return d3.max([bannerWidth, d.radius]);
                         })
-                        .attr("height", height)
-                        .style("fill", (d, i) => i % 2 === 0 ? "darkgrey" : "black");
+                        .attr("height", height);
+                        // .style("fill", (d, i) => i % 2 === 0 ? "darkgrey" : "black");
 
                     var auxLinesSE = layer1.selectAll("line.aux-line").data(sideEffects, function (d) {
                         return d;
@@ -410,7 +384,7 @@
                         .attr("x2", width)
                         .attr("y2", (d, i) => (i + 1) * rowHeight - rowHeight / 2 + padding);
 
-                    var iconGroups = layer3.selectAll("g.icon-group").data(leftToRightLocations, loc => loc.name);
+                    var iconGroups = layer3.selectAll("g.icon-group").data(locations, loc => loc.name);
 
                     iconGroups.exit()
                         .attr("class", "exit")
@@ -427,27 +401,20 @@
                         .attr("transform", d => "translate(" + (d.center[0] - bannerWidth / 2 + rectangleWidth / 2) + "," + (-rowHeight / 2 + padding) + ")");
 
                     for (var k = 0; k < sideEffects.length; k++) {
-                        // sideEffects.forEach(dr => {
-                        // var drx = dr.startIndex * he + (dr.weight *  columnWidth)/2;
-
                         // append the images of pills if available
                         textGroup
-                            .each(function (d, i) {
+                            .each(function (d) {
                                 for (var j = 0; j < 100; j++) {
                                     var plane = this.appendChild(importedNode.cloneNode(true));
                                     var d3Object = d3.select(plane);
 
                                     d3Object
-                                    // .attr("width", 20)
                                         .attr("height", 15)
                                         .attr("y", (k + 1) * rowHeight + 30 * Math.floor(j / 20) + rowHeight/3)
                                         .attr("x", ()=> j % 20 * 10)
                                         .style("fill", () => {
-                                            var temp = _.findWhere(sideEffectOccurences, {
-                                                name: sideEffects[k],
-                                                drug: d.name
-                                            });
-                                            if (temp.risk !== undefined && j < temp.risk * 100) {
+                                            var temp = _.findWhere(d.sideEffects, {name: sideEffects[k]});
+                                            if (temp !== undefined && temp.risk !== undefined && j < temp.risk * 100) {
                                                 return "steelblue";
                                             } else {
                                                 return "grey";
@@ -457,9 +424,6 @@
                             });
                     }
                 } else if (mode === ModeEnum.interactions) {
-                    layer1.attr("class", "rectangle-layer");
-                    layer2.attr("class", "medication-layer");
-
                     if(!rectangleDrawn) {
                         drawRectangle(layer1, healthFile.episodes, "Aandoeningen", episodeStartX, topMargin, true);
                         drawRectangle(layer1, healthFile.allergies, "Allergieën", allergyStartX, allergyStartY, false);
@@ -468,13 +432,13 @@
                     }
                     //////////////////////////////////////
                     // Interaction lines /////////////////
-                    //////////////////////////////////////
+                    //////////////////////////////////////t
                     var tempInteractions = [];
                     locations.forEach(med1 => {
                         med1.interactions.forEach(interaction => {
                             locations.forEach(med2 => {
                                 if (interaction.name === med2.name) {
-                                    tempInteractions.push({from: med1, to: med2, type: interaction.type});
+                                    tempInteractions.push({from: med1, to: med2, type: interaction.type, id: med1 + med2});
                                 }
                             });
                         });
@@ -487,30 +451,30 @@
                         }
                     });
 
-
-                    var interactionLines = layer1.selectAll("line.interaction").data(interactions);
+                    var interactionLines = layer1.selectAll("line.interaction").data(interactions, interaction => interaction.id);
 
                     interactionLines.exit()
-                        .transition(t)
-                        .style("fill-opacity", 1e-6)
-                        .remove();
+                      .transition(t)
+                            .style("fill-opacity", 1e-6)
+                            .remove();
 
                     interactionLines
-                        .transition(t)
+                      .transition(t)
                         .attr("x1", d => d.from.center[0])
                         .attr("y1", d => d.from.center[1])
                         .attr("x2", d => d.to.center[0])
                         .attr("y2", d => d.to.center[1]);
 
                     interactionLines
-                        .enter().append("line")
+                      .enter().append("line")
                         .attr("class", "interaction")
-                        .attr("stroke-width", 5)
-                        .attr("stroke", d => d.type === "severe" ? "red" : "orange")
                         .attr("x1", d => d.from.center[0])
                         .attr("y1", d => d.from.center[1])
                         .attr("x2", d => d.to.center[0])
-                        .attr("y2", d => d.to.center[1]);
+                        .attr("y2", d => d.to.center[1])
+                      .transition(t)
+                        .attr("stroke-width", 5)
+                        .attr("stroke", d => d.type === "severe" ? "red" : "orange");
 
 
                     //////////////////////////////////////
@@ -790,11 +754,10 @@
         } else {
             mode = ModeEnum.interactions;
         }
-        if ((previousMode !== mode && previousMode !== ModeEnum.init) || timer > tickTime * 80) {
+        if ((previousMode !== mode && previousMode !== ModeEnum.init)) {
             layer1.selectAll("*").remove();
             layer2.selectAll("*").remove();
             layer3.selectAll("*").remove();
-            timer = 0;
             rectangleDrawn = false;
         }
         previousMode = mode;

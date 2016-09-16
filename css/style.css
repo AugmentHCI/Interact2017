@@ -52,6 +52,7 @@ body {
 
 .background-banner {
     opacity: 0.1;
+    fill: darkgrey;
 }
 
 .header {
