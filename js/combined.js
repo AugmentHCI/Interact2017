@@ -206,7 +206,6 @@
                     /////////////////////////////////////////
                     // Integrate dosage regimen   //
                     /////////////////////////////////////////
-                    // var topToBottomLocations = _.sortBy(locations, l => l.center[1]);
                     for (var i = 0; i < locations.length; i++) {
                         var loc = locations[i];
                         loc.info = [];
@@ -310,8 +309,6 @@
                 // Side effects mode                   //
                 /////////////////////////////////////////
                 } else if (mode === ModeEnum.sideEffects) {
-                    // Sort locations from left to right   //
-
                     var tempSE = [];
                     locations.forEach(loc => {
                         if (loc.sideEffects !== undefined) {
@@ -365,7 +362,6 @@
                             return d3.max([bannerWidth, d.radius]);
                         })
                         .attr("height", height);
-                        // .style("fill", (d, i) => i % 2 === 0 ? "darkgrey" : "black");
 
                     var auxLinesSE = layer1.selectAll("line.aux-line").data(sideEffects, function (d) {
                         return d;
