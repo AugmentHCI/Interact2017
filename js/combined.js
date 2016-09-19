@@ -76,7 +76,7 @@
         .defer(d3.json, "data/dosageregimen.json")
         .await(draw);
 
-    function draw(error, druginfo, healthFile, dosageregimen) {
+    function draw(error, drugInfo, healthFile, dosageRegimen) {
         if(error) {
             console.log(error);
         }
@@ -92,13 +92,13 @@
         var personalStartY = allergyStartY;
         var personalData = [{name: healthFile.personal.name, medications: []}, {name: healthFile.personal.age, medications: []}, {name: healthFile.personal.gender, medications: []}, {name: healthFile.personal.weight, medications: []}];
 
-        var totalWeight = _.reduce(dosageregimen, function(memo, el){ return memo + el.weight; }, 0);
+        var totalWeight = _.reduce(dosageRegimen, function(memo, el){ return memo + el.weight; }, 0);
         var columnWidth = width / totalWeight;
 
         var tempIndex = 0;
-        for(var i = 0; i < dosageregimen.length; i++) {
-            dosageregimen[i].startIndex = tempIndex;
-            tempIndex += dosageregimen[i].weight;
+        for(var i = 0; i < dosageRegimen.length; i++) {
+            dosageRegimen[i].startIndex = tempIndex;
+            tempIndex += dosageRegimen[i].weight;
         }
 
         setInterval(update, tickTime);
@@ -120,7 +120,7 @@
                 }
 
                 // extend the locations with the drug information
-                druginfo.forEach(info => {
+                drugInfo.forEach(info => {
                     _.extend(_.findWhere(locations, {id: info.id}), info);
                 });
 
@@ -137,7 +137,7 @@
                 if(mode === ModeEnum.schedule) {
 
                     // headers that show when medication should be taken
-                    var headers = layer2.selectAll("text.header").data(dosageregimen, d => d.name);
+                    var headers = layer2.selectAll("text.header").data(dosageRegimen, d => d.name);
 
                     headers.exit()
                         .attr("class", "exit")
@@ -166,7 +166,7 @@
                             } // no image available.
                         });
 
-                    var auxLines = layer2.selectAll("line.aux-line").data(dosageregimen, d => d.name);
+                    var auxLines = layer2.selectAll("line.aux-line").data(dosageRegimen, d => d.name);
 
                     auxLines.exit()
                         .attr("class", "exit")
@@ -181,7 +181,7 @@
                         .attr("x2", d => d.startIndex * columnWidth - 1)
                         .attr("y2", height);
 
-                    var subAuxLines = layer2.selectAll("line.sub-line").data(dosageregimen, d => d.name);
+                    var subAuxLines = layer2.selectAll("line.sub-line").data(dosageRegimen, d => d.name);
 
                     subAuxLines.exit()
                         .attr("class", "exit")
@@ -262,7 +262,7 @@
                         .attr("class", "text-group")
                         .attr("transform", d => "translate(0," + d.center[1] + ")");
 
-                    dosageregimen.forEach(dr => {
+                    dosageRegimen.forEach(dr => {
                         var drx = dr.startIndex * columnWidth + (dr.weight * columnWidth) / 2;
 
                         // append the actual text
@@ -620,7 +620,7 @@
                         .attr("x2", 0)
                         .attr("y2", 0);
 
-                    druginfo.forEach(info => {
+                    drugInfo.forEach(info => {
                         layer1.selectAll("." + info.name + "-lines").attr("visibility", "hidden");
                     });
 
