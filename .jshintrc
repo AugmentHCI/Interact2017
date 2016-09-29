@@ -89,6 +89,8 @@
   // Custom Globals
   "globals"       : {
     "_": false,
-    "d3": false
+    "d3": false,
+    "annyang": false,
+    "SAT": false
   }        // additional predefined global variables
 }

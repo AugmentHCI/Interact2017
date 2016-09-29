@@ -12,13 +12,13 @@
 ]>
 <svg version="1.1" id="Layer_1" xmlns:x="&ns_extend;" xmlns:i="&ns_ai;" xmlns:graph="&ns_graphs;"
 	 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="124.189px"
-	 height="132.243px" viewBox="0 0 124.189 132.243" enable-background="new 0 0 124.189 132.243" xml:space="preserve">
+	 height="132.243px" viewBox="0 0 124.189 132.243"  enable-background="new 0 0 124.189 132.243" xml:space="preserve">
 		<g>
-			<g id="g9005_8_" class="person-icon" transform="matrix(1.25,0,0,-1.25,359.06468,506.51275)">
+			<g id="g9005_8_" class="person-icon" transform="matrix(1.25,0,0,-1.25,0,506.51275)">
 				<path id="path9007_8_" d="M-237.575,383.262c4.162,0,7.538,3.376,7.538,7.539c0,4.166-3.376,7.541-7.538,7.541
 					c-4.166,0-7.539-3.376-7.539-7.541C-245.113,386.638-241.74,383.262-237.575,383.262"/>
 			</g>
-			<g id="g9009_8_" class="person-icon" transform="matrix(1.25,0,0,-1.25,367.39906,508.44512)">
+			<g id="g9009_8_" class="person-icon" transform="matrix(1.25,0,0,-1.25,8.4,508.44512)">
 				<path id="path9011_8_" d="M-235.914,382.874c5.333,0,9.702-4.327,9.702-9.657v-23.384c0-1.821-1.433-3.298-3.257-3.298
 					c-1.821,0-3.302,1.478-3.302,3.298v21.084h-1.702v-58.663c0-2.446-1.996-4.425-4.439-4.425c-2.446,0-4.425,1.979-4.425,4.425
 					v34.063h-1.815v-34.063c0-2.446-1.979-4.425-4.421-4.425c-2.443,0-4.425,1.979-4.425,4.425c0,3.614-0.039,58.663-0.039,58.663

@@ -2,7 +2,7 @@
   {
     "id": 29,
     "name": "paracetamol",
-    "halfLife": 72000,
+    "halfLife": 100,
     "interactions": [
       {
         "name": "ibuprofene",
@@ -10,6 +10,7 @@
       }
     ],
     "warnings": [
+      "borstvoeding"
     ],
     "sideEffects": [
       {
@@ -25,7 +26,7 @@
   {
     "id": 30,
     "name": "ibuprofene",
-    "halfLife": 1200,
+    "halfLife": 6000,
     "interactions": [
       {
         "name": "paracetamol",
@@ -33,7 +34,7 @@
       }
     ],
     "warnings": [
-      "borstvoeding"
+      "alcohol"
     ],
     "sideEffects": [
       {
@@ -47,14 +48,16 @@
     ]
   },
   {
-    "id": 28,
+    "id": 31,
     "name": "flixonase",
     "halfLife": 1200,
     "interactions": [
-
+      {
+        "name": "paracetamol",
+        "type": "severe"
+      }
     ],
     "warnings": [
-      "borstvoeding"
     ],
     "sideEffects": [
       {

@@ -12,40 +12,40 @@ body {
     fill: white;
 }
 
-.minutes-arc {
-    fill: #1D3549;
-}
+/*.minutes-arc {*/
+    /*fill: #1D3549;*/
+/*}*/
 
-.minutes-aux {
-    fill: #2B506E;
-}
+/*.minutes-aux {*/
+    /*fill: #2B506E;*/
+/*}*/
 
-.hours-arc {
-    fill: #2B506E;
-}
+/*.hours-arc {*/
+    /*fill: #2B506E;*/
+/*}*/
 
-.hours-aux {
-    fill: #4682B4;
-}
+/*.hours-aux {*/
+    /*fill: #4682B4;*/
+/*}*/
 
-.days-arc {
-    fill: #4682B4;
-}
+/*.days-arc {*/
+    /*fill: #4682B4;*/
+/*}*/
 
-.days-aux {
-    fill: #6a9bc3;
-}
+/*.days-aux {*/
+    /*fill: #6a9bc3;*/
+/*}*/
 
-.weeks-arc {
-    fill: #6a9bc3;
-}
+/*.weeks-arc {*/
+    /*fill: #6a9bc3;*/
+/*}*/
 
-.weeks-aux {
-    fill: white;
-}
+/*.weeks-aux {*/
+    /*fill: white;*/
+/*}*/
 
 .warning {
-    stroke: grey;
+    stroke: orange;
     stroke-dasharray: 5;
 
 }
