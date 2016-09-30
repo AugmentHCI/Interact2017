@@ -22,8 +22,8 @@
         radiusWidth = 20,
         negativeBuffer = -400,
         imageSize = 40,
-        xValue = 300,
-        yValue = 200,
+        xValue = 250,
+        yValue = 900,
         backgroundBannerHeight = 200,
         backgroundBannerWidth = 350;
 
@@ -158,7 +158,7 @@
                 // set the current mode to show
                 currentMode = setMode(locations, previousMode);
 
-                currentMode = ModeEnum.sideEffects;
+                currentMode = ModeEnum.moveToSideEffects;
                 /////////////////////////////////////////
                 // Display the mode depending view     //
                 /////////////////////////////////////////
@@ -247,7 +247,6 @@
                     drawSideEffectHeaders(sideEffects);
 
                     // grey banners to differentiate rows  //
-                    var bannerWidth = width / (locations.length + 3);
                     drawVerticalBanners(locations);
 
                     var rowHeight = height / (sideEffects.length + 1);
@@ -321,7 +320,7 @@
                         med1.interactions.forEach(interaction => {
                             locations.forEach(med2 => {
                                 if (interaction.name === med2.name) {
-                                    tempInteractions.push({from: med1, to: med2, type: interaction.type, id: med1 + med2});
+                                    tempInteractions.push({from: med1, to: med2, type: interaction.type, id: med1.id + "-" + med2.id});
                                 }
                             });
                         });
@@ -343,20 +342,27 @@
 
                     interactionLines
                         .transition(t)
-                        .attr("d", d => {
-                            return getPathFromTo(d.from.center, d.to.center);
+                        .attr("d", (d,i) => {
+                            var x1 = getCircleStartX2(d.from.center[0], d.from.center[1], d.from.radius, d.to.center[0], d.to.center[1]),
+                                y1 = getCircleStartY2(d.from.center[0], d.from.center[1], d.from.radius, d.to.center[0], d.to.center[1]),
+                                x2 = getCircleStartX2(d.to.center[0], d.to.center[1], d.to.radius, d.from.center[0], d.from.center[1]),
+                                y2 = getCircleStartY2(d.to.center[0], d.to.center[1], d.to.radius, d.from.center[0], d.from.center[1]);
+                            return getPathFromTo(x1,y1,x2,y2);
                         });
 
                     interactionLines
                         .enter().append("path")
                         .attr("class", "interaction")
-                        .attr("d", d => {
-                            return getPathFromTo(d.from.center, d.to.center);
+                        .attr("d", (d,i) => {
+                            let x1 = getCircleStartX2(d.from.center[0], d.from.center[1], d.from.radius, d.to.center[0], d.to.center[1]),
+                                y1 = getCircleStartY2(d.from.center[0], d.from.center[1], d.from.radius, d.to.center[0], d.to.center[1]),
+                                x2 = getCircleStartX2(d.to.center[0], d.to.center[1], d.to.radius, d.from.center[0], d.from.center[1]),
+                                y2 = getCircleStartY2(d.to.center[0], d.to.center[1], d.to.radius, d.from.center[0], d.from.center[1]);
+                            return getPathFromTo(x1,y1,x2,y2);
                         })
                         .transition(t)
                         .attr("stroke-width",5)
                         .attr("stroke", d => d.type === "severe" ? "red" : "orange");
-
 
                     drawSurroundingCircle(locations);
 
@@ -368,29 +374,63 @@
                     locations.forEach(l => {
                         layer1.selectAll("." + l.name + "-lines")
                             .attr("visibility", "visible")
-                            .transition()
-                            .attr("x2", d => l.center[0] - d.parentLocation.x - d.parentLocation.index * (rectangleWidth + padding) + (l.radius) * Math.cos(angle(l.center[0], l.center[1], d.parentLocation.x, d.parentLocation.y) * Math.sign(d.parentLocation.x - l.center[0])))
+                            .transition() // d.parentLocation.x - d.parentLocation.index * (rectangleWidth + padding) === toX
+                            .attr("x2", d => getCircleStartX(l.center[0], l.center[1], l.radius, d.parentLocation.x, d.parentLocation.y)-  d.parentLocation.index * (rectangleWidth + padding))
+                            // .attr("x2", d => l.center[0] - d.parentLocation.x + (l.radius) * Math.cos(angle(l.center[0], l.center[1], d.parentLocation.x, d.parentLocation.y) * Math.sign(d.parentLocation.x - l.center[0])))
                             // .attr("y2", d => l.center[1]);
                             .attr("y2", d => l.center[1] - d.parentLocation.y + (l.radius) * Math.sin(angle(l.center[0], l.center[1], d.parentLocation.x, d.parentLocation.y) * Math.sign(d.parentLocation.y - l.center[1])));
                     });
+
                 } else if (currentMode === ModeEnum.moveToSchedule) {
                     if (belowXThreshold()) {
                         drawScheduleHeaders(dosageRegimen,columnWidth);
-                        var locationsToBeMoved = locations.filter(loc => loc.center[0] > xValue);
+                        let locationsToBeMoved = locations.filter(loc => loc.center[0] > xValue);
                         drawSurroundingCircle(locationsToBeMoved);
 
-                        var arrows = layer3.selectAll("line.arrow").data(locationsToBeMoved);
+                        let arrows = layer3.selectAll("line.arrow").data(locationsToBeMoved);
+
+                        arrows
+                          .transition(t)
+                            .attr("x1", d => d.center[0] - d.radius * 1.5)
+                            .attr("y1", d => d.center[1])
+                            .attr("x2", d => d.radius + xValue > d.center[0] ? xValue - 1.5 * d.radius : xValue)
+                            .attr("y2", d => d.center[1])
+                            .attr("marker-end", "url(#triangle)");
 
                         arrows.enter().append("line")
                             .attr("class", "arrow")
                             .attr("x1",  d => d.center[0] - d.radius * 1.5)
                             .attr("y1", d => d.center[1])
-                            .attr("x2", xValue)
+                            .attr("x2", d => d.center[0] - d.radius * 1.5)
                             .attr("y2", d => d.center[1])
                             .attr("stroke-width", 5)
-                            .attr("stroke", "white")
+                            .attr("stroke", "white");
+                    }
+
+                } else if (currentMode === ModeEnum.moveToSideEffects) {
+                    if (belowXThreshold()) {
+                        // drawSideEffectHeaders(extractSideEffects(locations));
+                        let locationsToBeMoved = locations.filter(loc => loc.center[1] < yValue);
+                        drawSurroundingCircle(locationsToBeMoved);
+
+                        let arrows = layer3.selectAll("line.arrow").data(locationsToBeMoved);
+
+                        arrows
+                          .transition(t)
+                            .attr("x1",  d => d.center[0])
+                            .attr("y1", d => d.center[1] + d.radius * 1.5)
+                            .attr("x2", d => d.center[0])
+                            .attr("y2", d => yValue - d.center[1] < d.radius * 1.5 ? yValue + 1.5 * d.radius : yValue)
                             .attr("marker-end", "url(#triangle)");
 
+                        arrows.enter().append("line")
+                            .attr("class", "arrow")
+                            .attr("x1",  d => d.center[0])
+                            .attr("y1", d => d.center[1] + d.radius * 1.5)
+                            .attr("x2", d => d.center[0])
+                            .attr("y2", d => d.center[1] + d.radius * 1.5)
+                            .attr("stroke-width", 5)
+                            .attr("stroke", "white");
                     }
 
                 }
@@ -406,13 +446,22 @@
             return true;
         }
 
+        function aboveYThreshold() {
+            currentLocations.forEach(loc => {
+                if (loc.center[1] < yValue) {
+                    return false;
+                }
+            });
+            return true;
+        }
+
         function drawSurroundingCircle(locations) {
             //////////////////////////////////////
             // Medication circles and others /////
             //////////////////////////////////////
 
             // JOIN new data with old elements.
-            var circleGroups = layer2.selectAll("g.circle-group").data(locations, med => med.id);
+            let circleGroups = layer2.selectAll("g.circle-group").data(locations, med => med.id);
 
             // exit selection
             circleGroups.exit()
@@ -425,7 +474,7 @@
                 .attr("transform", d => "translate(" + d.center[0] + "," + d.center[1] + ")");
 
             // enter selection
-            var circleGroupsEnter = circleGroups
+            let circleGroupsEnter = circleGroups
                 .enter().append("g")
                 .attr("class", "circle-group")
                 .attr("id", d => d.name)
@@ -440,7 +489,7 @@
                 .style("fill", (d) => colorScale(d.halfLife));
 
 
-            var warningEnter = circleGroups.selectAll("g.warnings")
+            let warningEnter = circleGroups.selectAll("g.warnings")
                 .data(d => _.map(d.warnings, elem => {
                     return {warning: elem, parentData: d};
                 }))
@@ -462,20 +511,20 @@
                 .attr("stroke-width", 5)
                 .attr("class", "warning")
                 .attr("x1", (d, i) => {
-                    // var nbCircles = numberOfCircles(d.parentData.halfLife);
+                    // let nbCircles = numberOfCircles(d.parentData.halfLife);
                     return i * 40 + imageSize / 2 - (d.parentData.radius + 2 * radiusWidth + padding);
                 })
                 .attr("y1", (d, i) => {
-                    // var nbCircles = numberOfCircles(d.parentData.halfLife);
+                    // let nbCircles = numberOfCircles(d.parentData.halfLife);
                     return -i * 20 + imageSize / 2 - (d.parentData.radius + 2 * radiusWidth + padding);
                 })
                 .attr("x2", (d, i) => {
-                    // var nbCircles = numberOfCircles(d.parentData.halfLife);
+                    // let nbCircles = numberOfCircles(d.parentData.halfLife);
                     return -d.parentData.radius + padding;
                     // return i * 40  -  (d.parentData.radius + radiusWidth);
                 })
                 .attr("y2", (d, i) => {
-                    // var nbCircles = numberOfCircles(d.parentData.halfLife);
+                    // let nbCircles = numberOfCircles(d.parentData.halfLife);
                     // return -i * 20  - (d.parentData.radius + radiusWidth);
                     return -d.parentData.radius + padding;
                 });
@@ -488,7 +537,7 @@
 
     function drawRectangle(rectangleLayer,data, titleText, startX, startY, top) {
 
-        var rectangleGroup = rectangleLayer.append("g")
+        let rectangleGroup = rectangleLayer.append("g")
             .attr("class", "rectangle-group")
             .attr("transform", "translate(" + startX + ", " + startY + ")");
 
@@ -496,7 +545,7 @@
             .attr("y", () => top ? -5 :  rectangleHeight + 15)
             .attr("class", "rectangle-text");
 
-        var rectangle = rectangleGroup.selectAll(".rectangle")
+        let rectangle = rectangleGroup.selectAll(".rectangle")
             .data(data);
 
         rectangle.exit()
@@ -504,7 +553,7 @@
             .style("fill-opacity", 1e-6)
             .remove();
 
-        var singleEpisodeGroup = rectangle.enter().append("g")
+        let singleEpisodeGroup = rectangle.enter().append("g")
             .attr("class", "single-episode-group")
             .attr("transform", (d, i) => "translate(" + i * (rectangleWidth + padding) + ", 0)");
 
@@ -523,7 +572,7 @@
             .attr("class", "rectangle-text")
             .text(d => d.name);
 
-        var episodeLines = singleEpisodeGroup.selectAll("line").data((d, i) => _.map(d.medications, elem => {return {medication: elem.name, parentLocation: {x: startX, y: startY, index: i, top: top}};}))
+        let episodeLines = singleEpisodeGroup.selectAll("line").data((d, i) => _.map(d.medications, elem => {return {medication: elem.name, parentLocation: {x: startX, y: startY, index: i, top: top}};}))
             .enter().append("line")
             .attr("class", d => d.medication + "-lines")
             .attr("stroke-width", 5)
@@ -545,7 +594,7 @@
     }
 
     function debugDrawMedicationLocations(locations) {
-        var medBoxes = layer1.selectAll("rect.med-box").data(locations, l => l.id);
+        let medBoxes = layer1.selectAll("rect.med-box").data(locations, l => l.id);
 
         medBoxes.exit()
             .attr("class", "exit")
@@ -569,12 +618,12 @@
         // if(currentMode === ModeEnum.moveToSchedule && !belowXThreshold()) {
         //     drawSurroundingCircle(locations);
         // }
-        var mode = ModeEnum.init;
-        var smallX = 0; // booleans don't work well with only removing all elements when change
-        var smallY = 0; // booleans don't work well with only removing all elements when change
+        let mode = ModeEnum.init;
+        let smallX = 0; // booleans don't work well with only removing all elements when change
+        let smallY = 0; // booleans don't work well with only removing all elements when change
         locations.forEach(loc => {
             smallX += xValue > +loc.center[0] ? 1 : 0;
-            smallY += yValue > +loc.center[1] ? 1 : 0;
+            smallY += yValue < +loc.center[1] ? 1 : 0;
         });
 
         if (smallX === locations.length) {
@@ -598,10 +647,10 @@
         if (previousLocations.length === 0) {
             return false;
         }
-        var similar = true;
-        for (var i = 0; i < locations.length && similar && previousLocations.length !== 0; i++) {
-            var loc = locations[i];
-            var prev = _.findWhere(previousLocations, {id: loc.id});
+        let similar = true;
+        for (let i = 0; i < locations.length && similar && previousLocations.length !== 0; i++) {
+            let loc = locations[i];
+            let prev = _.findWhere(previousLocations, {id: loc.id});
             if (loc.center[0] > prev.center[0] + 20 || loc.center[0] < prev.center[0] - 20) {
                 similar = false;
             }
@@ -614,23 +663,15 @@
     }
 
     function getAngleBetween(interactionLine) {
-        var d = interactionLine;
+        let d = interactionLine;
         return angle(d.to.center[0],d.to.center[1], d.from.center[0], d.from.center[1]);
-    }
-
-    function angle(cx, cy, ex, ey) {
-        var dy = ey - cy;
-        var dx = ex - cx;
-        var theta = Math.atan2(dy, dx); // range (-PI, PI]
-        // theta *= 180 / Math.PI; // rads to degs, range (-180, 180]
-        return theta;
     }
 
     function initSpeechRecognition() {
         if (annyang) {
             annyang.setLanguage("nl-NL");
             // Let's define a command.
-            var commands = {
+            let commands = {
                 "bijwerkingen": function () {
                     console.log(("bijwerkingen!"));
                 },
@@ -648,7 +689,7 @@
 
     function drawScheduleHeaders(dosageRegimen, columnWidth) {
 // headers that show when medication should be taken
-        var headers = layer2.selectAll("text.header").data(dosageRegimen, d => d.key);
+        let headers = layer2.selectAll("text.header").data(dosageRegimen, d => d.key);
 
         headers.exit()
             .attr("class", "exit")
@@ -656,7 +697,7 @@
             .style("fill-opacity", 1e-6)
             .remove();
 
-        var headerGroup = headers.enter().append("g")
+        let headerGroup = headers.enter().append("g")
             .attr("class", "header-group")
             .attr("transform", d =>
             "translate(" + (d.startIndex * columnWidth + (d.weight * columnWidth) / 2) + "," + topMargin + ")");
@@ -680,7 +721,7 @@
 
 
     function drawSideEffectHeaders(sideEffects) {
-        var rowTitles = layer2.selectAll("text.row-title").data(sideEffects, effect => effect);
+        let rowTitles = layer2.selectAll("text.row-title").data(sideEffects, effect => effect);
 
         rowTitles.exit()
             .attr("class", "exit")
@@ -698,7 +739,7 @@
 
     // grey banners to differentiate rows
     function drawHorizontalBanners(locations) {
-        var horizontalBackgroundBanners = layer1.selectAll("rect.background-banner").data(locations, l => l.id);
+        let horizontalBackgroundBanners = layer1.selectAll("rect.background-banner").data(locations, l => l.id);
 
         horizontalBackgroundBanners.exit()
             .attr("class", "exit")
@@ -722,7 +763,7 @@
 
     function drawVerticalBanners(locations) {
 
-        var backgroundBanners = layer1.selectAll("rect.background-banner").data(locations, l => l.id);
+        let backgroundBanners = layer1.selectAll("rect.background-banner").data(locations, l => l.id);
 
         backgroundBanners.exit()
             .attr("class", "exit")
@@ -746,7 +787,7 @@
     }
 
     function extractSideEffects(locations) {
-        var tempSE = [];
+        let tempSE = [];
         locations.forEach(loc => {
             if (loc.sideEffects !== undefined) {
                 loc.sideEffects.forEach(se => {
@@ -754,12 +795,12 @@
                 });
             }
         });
-        var sideEffects = _.uniq(tempSE.sort(), true);
+        let sideEffects = _.uniq(tempSE.sort(), true);
         return sideEffects;
     }
 
     function drawVerticalAuxLines(dosageRegimen, columnWidth) {
-        var auxLines = layer2.selectAll("line.aux-line").data(dosageRegimen, d => d.name);
+        let auxLines = layer2.selectAll("line.aux-line").data(dosageRegimen, d => d.name);
 
         auxLines.exit()
             .attr("class", "exit")
@@ -774,7 +815,7 @@
             .attr("x2", d => d.startIndex * columnWidth - 1)
             .attr("y2", height);
 
-        var subAuxLines = layer2.selectAll("line.sub-line").data(dosageRegimen, d => d.name);
+        let subAuxLines = layer2.selectAll("line.sub-line").data(dosageRegimen, d => d.name);
 
         subAuxLines.exit()
             .attr("class", "exit")
@@ -784,8 +825,8 @@
 
         subAuxLines.enter().each(function (d) {
             if (d.subdivision !== undefined) {
-                var nbLines = d.subdivision;
-                for (var i = 1; i < nbLines; i++) {
+                let nbLines = d.subdivision;
+                for (let i = 1; i < nbLines; i++) {
                     d3.select(this).append("line")
                         .attr("class", "sub-line")
                         .attr("x1", d.startIndex * columnWidth - 1 + i * columnWidth / nbLines)
@@ -798,19 +839,19 @@
     }
 
     function interceptOnCircle(med1Center, med2Center) {
-        var V = SAT.Vector;
-        var C = SAT.Circle;
-        var P = SAT.Polygon;
+        let V = SAT.Vector;
+        let C = SAT.Circle;
+        let P = SAT.Polygon;
 
-        var points = [];
-        var polygon = new P(new V(0, 0), [new V(med1Center[0], med1Center[1]), new V(med2Center[0], med2Center[1])]);
+        let points = [];
+        let polygon = new P(new V(0, 0), [new V(med1Center[0], med1Center[1]), new V(med2Center[0], med2Center[1])]);
 
         currentLocations.forEach(function (med) {
-            var c = med.center;
-            var r = med.radius;
-            var circle = new C(new V(c[0], c[1]), r); // not the two original circles
-            var response = new SAT.Response();
-            var collided = SAT.testPolygonCircle(polygon, circle, response);
+            let c = med.center;
+            let r = med.radius;
+            let circle = new C(new V(c[0], c[1]), r); // not the two original circles
+            let response = new SAT.Response();
+            let collided = SAT.testPolygonCircle(polygon, circle, response);
 
             if (collided && !(med.center === med1Center || med.center === med2Center)) {
                 points.push({
@@ -821,39 +862,66 @@
         });
 
         // depends on the direction
-        points.sort(function (a, b) {
-            if (med1Center.center[0] < med2Center.center[0]) {
-                return a[0] - b[0]; // left to right
-            } else {
-                return b[0] - a[0];
-            }
-        });
+        // points.sort(function (a, b) {
+        //     if (med1Center[0] < med2Center[0]) {
+        //         return a[0] - b[0]; // left to right
+        //     } else {
+        //         return b[0] - a[0];
+        //     }
+        // });
         return points;
     }
 
-    var lineFunction = d3.line()
+    let lineFunction = d3.line()
         .curve(d3.curveBasis)
         .x(d => d[0])
         .y(d => d[1]);
 
     // todo recursief maken
-    function getPathFromTo(startPoint, endPoint) {
-        var lineData = [];
-        if (startPoint[0] > endPoint[0]) {
-            lineData = [startPoint, endPoint];
+    function getPathFromTo(startX, startY, endX, endY) {
+        let startPoint = [startX, startY],
+            endPoint = [endX,endY];
+        let lineData = [];
+        if (startX > endX) {
+            lineData = [startPoint,endPoint];
         } else {
-            lineData = [endPoint, startPoint];
+            lineData = [endPoint,startPoint];
         }
 
-        var extraPoints = interceptOnCircle(startPoint, endPoint);
+        let extraPoints = interceptOnCircle(startPoint, endPoint);
         extraPoints.forEach(function (p) {
-            var temp = lineData.pop();
+            let temp = lineData.pop();
             lineData = lineData.concat(p);
             lineData.push(temp);
         });
 
         return lineFunction(lineData);
     }
+
+    function angle(cx, cy, ex, ey) {
+        let dy = ey - cy;
+        let dx = ex - cx;
+        let theta = Math.atan2(dy, dx); // range (-PI, PI]
+        // theta *= 180 / Math.PI; // rads to degs, range (-180, 180]
+        return theta;
+    }
+
+    function getCircleStartX (fromX, fromY, fromRadius, toX, toY) {
+        return fromX - toX + fromRadius * Math.cos(angle(fromX, fromY, toX, toY) * Math.sign(toX - fromX));
+    }
+
+    function getCircleStartY (fromX, fromY, fromRadius, toX, toY) {
+        return fromY - toY + fromRadius * Math.sin(angle(fromX, fromY, toX, toY) * Math.sign(toY - fromY));
+    }
+
+    function getCircleStartX2 (fromX, fromY, fromRadius, toX, toY) {
+        return fromX + fromRadius * Math.cos(angle(fromX, fromY, toX, toY) * Math.sign(toX - fromX));
+    }
+
+    function getCircleStartY2 (fromX, fromY, fromRadius, toX, toY) {
+        return fromY + fromRadius * Math.sin(angle(fromX, fromY, toX, toY) );
+    }
+
 
 
 }(d3, d3.queue(), annyang, SAT));
