@@ -90,6 +90,8 @@
         importedNode = document.importNode(xml.documentElement, true);
     });
 
+    // initSpeechRecognition();
+
     queue
         .defer(d3.json, "data/druginfo.json")
         .defer(d3.json, "data/janedoe.json")
@@ -119,8 +121,6 @@
             dosageRegimen[i].startIndex = tempIndex;
             tempIndex += dosageRegimen[i].weight;
         }
-
-        // initSpeechRecognition();
 
         setInterval(update, tickTime);
         update();
@@ -158,7 +158,6 @@
                 // set the current mode to show
                 currentMode = setMode(locations, previousMode);
 
-                currentMode = ModeEnum.moveToSideEffects;
                 /////////////////////////////////////////
                 // Display the mode depending view     //
                 /////////////////////////////////////////
@@ -314,7 +313,7 @@
                     }
                     //////////////////////////////////////
                     // Interaction lines /////////////////
-                    //////////////////////////////////////t
+                    //////////////////////////////////////
                     var tempInteractions = [];
                     locations.forEach(med1 => {
                         med1.interactions.forEach(interaction => {
@@ -333,16 +332,16 @@
                         }
                     });
 
-                    var interactionLines = layer1.selectAll("line.interaction").data(interactions, interaction => interaction.id);
+                    var interactionLines = layer1.selectAll("path.interactionLine").data(interactions, interaction => interaction.id);
 
                     interactionLines.exit()
-                        .transition(t)
+                      .transition(t)
                         .style("fill-opacity", 1e-6)
                         .remove();
 
                     interactionLines
-                        .transition(t)
-                        .attr("d", (d,i) => {
+                      .transition(t)
+                        .attr("d", d => {
                             var x1 = getCircleStartX2(d.from.center[0], d.from.center[1], d.from.radius, d.to.center[0], d.to.center[1]),
                                 y1 = getCircleStartY2(d.from.center[0], d.from.center[1], d.from.radius, d.to.center[0], d.to.center[1]),
                                 x2 = getCircleStartX2(d.to.center[0], d.to.center[1], d.to.radius, d.from.center[0], d.from.center[1]),
@@ -351,16 +350,15 @@
                         });
 
                     interactionLines
-                        .enter().append("path")
-                        .attr("class", "interaction")
-                        .attr("d", (d,i) => {
+                      .enter().append("path")
+                        .attr("class", "interactionLine")
+                        .attr("d", d => {
                             let x1 = getCircleStartX2(d.from.center[0], d.from.center[1], d.from.radius, d.to.center[0], d.to.center[1]),
                                 y1 = getCircleStartY2(d.from.center[0], d.from.center[1], d.from.radius, d.to.center[0], d.to.center[1]),
                                 x2 = getCircleStartX2(d.to.center[0], d.to.center[1], d.to.radius, d.from.center[0], d.from.center[1]),
                                 y2 = getCircleStartY2(d.to.center[0], d.to.center[1], d.to.radius, d.from.center[0], d.from.center[1]);
                             return getPathFromTo(x1,y1,x2,y2);
                         })
-                        .transition(t)
                         .attr("stroke-width",5)
                         .attr("stroke", d => d.type === "severe" ? "red" : "orange");
 
@@ -673,6 +671,7 @@
             // Let's define a command.
             let commands = {
                 "bijwerkingen": function () {
+                    currentMode = ModeEnum.moveToSideEffects;
                     console.log(("bijwerkingen!"));
                 },
                 "schema": function () {
@@ -888,12 +887,12 @@
             lineData = [endPoint,startPoint];
         }
 
-        let extraPoints = interceptOnCircle(startPoint, endPoint);
-        extraPoints.forEach(function (p) {
-            let temp = lineData.pop();
-            lineData = lineData.concat(p);
-            lineData.push(temp);
-        });
+        // let extraPoints = interceptOnCircle(startPoint, endPoint);
+        // extraPoints.forEach(function (p) {
+        //     let temp = lineData.pop();
+        //     lineData = lineData.concat(p);
+        //     lineData.push(temp);
+        // });
 
         return lineFunction(lineData);
     }
